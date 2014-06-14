@@ -15,8 +15,13 @@ var LEVELS = {
   'ERROR': 3
 };
 
-module.exports = function () {
+module.exports = function ($window) {
 
+  /**
+   * Log output to the console.
+   * @param {Number}  lvl
+   * @param {Array}   args
+   */
   function log (lvl, args) {
     args = Array.prototype.slice.call(args);
 
@@ -25,16 +30,16 @@ module.exports = function () {
 
     switch (lvl) {
       case LEVELS.DEBUG:
-        console.debug(args);
+        $window.console.debug.apply(console, args);
         break;
       case LEVELS.INFO:
-        console.info(args);
+        $window.console.info.apply(console, args);
         break;
       case LEVELS.WARN:
-        console.warn(args);
+        $window.console.warn.apply(console, args);
         break;
       case LEVELS.ERROR:
-        console.error(args);
+        $window.console.error.apply(console, args);
         break;
     }
   }
