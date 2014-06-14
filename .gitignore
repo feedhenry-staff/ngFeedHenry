@@ -1,0 +1,5 @@
+.DS_Store
+node_modules
+fhc-debug.log
+bower_components
+npm-debug.log

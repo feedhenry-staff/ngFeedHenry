@@ -1,0 +1,24 @@
+{
+  "name": "browserify-fhng",
+  "version": "0.0.0",
+  "homepage": "https://github.com/evanshortiss/angular-cordova-workflow",
+  "authors": [
+    "Evan Shortiss"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fh-js-sdk": "*",
+    "angular": "1.2.12"
+  },
+  "devDependencies": {
+    "angular-mocks": "1.2.12"
+  }
+}

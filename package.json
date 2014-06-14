@@ -1,0 +1,26 @@
+{
+  "name": "ngFH",
+  "version": "0.0.0",
+  "description": "AngularJS friendly FeedHenry SDK wrapper with utilities",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "author": "Evan Shortiss",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "browserify": "~4.1.8",
+    "grunt-browserify": "~2.1.0",
+    "grunt-lintspaces": "^0.5.1",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-column-lint": "~0.2.0",
+    "grunt-shell": "~0.7.0",
+    "grunt-karma": "~0.8.2",
+    "karma": "~0.12.6",
+    "karma-chai": "~0.1.0",
+    "karma-mocha": "~0.1.3",
+    "karma-jasmine": "~0.1.5",
+    "karma-chrome-launcher": "~0.1.3"
+  }
+}
