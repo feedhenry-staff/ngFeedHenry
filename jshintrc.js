@@ -1,6 +1,7 @@
 {
   "globals": {
-    "angular": true
+    "angular": true,
+    "$fh": true
   },
   "curly": true,
   "camelcase": false,
