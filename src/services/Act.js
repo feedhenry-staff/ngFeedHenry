@@ -6,7 +6,8 @@
  * callback style instead
  */
 
-var fh = $fh // Once fh-js-sdk is on npm we can require it here
+var _ = require('underscore')
+  , fh = $fh // Once fh-js-sdk is on npm we can require it here
   , printLogs = true
   , defaultTimeout = 20 * 1000;
 
@@ -131,40 +132,32 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
    * @param {Function}    [callback]
    * @param {Number}      [timeout]
    */
-  this.callFn = function(actname, params, cb, timeout) {
-    var promise = null,
-      callback = null,
-      args = Array.prototype.slice.call(arguments);
+  this.callFn = function(opts, callback) {
+    var promise = null;
 
-    // Find a callback if one exists
-    for (var i in args) {
-      if (typeof args[i] === 'function') {
-        // User provided a callback
-        callback = args[i];
-      }
-    }
-
-    if (callback) {
-      // Ensure we don't provde a function to req of $fh.act
-      if (params === callback) {
-        params = null;
-      }
-    } else {
+    // We need to use promises as user didn't provide a callback
+    if (!callback) {
       promise = $q.defer();
+
+      callback = function (err, res) {
+        if (err) {
+          promise.reject(err);
+        } else {
+          promise.resolve(res);
+        }
+      };
     }
 
-    // $fh.act parameters object
-    var opts = {
-      act: actname,
-      req: params,
-      timeout: timeout || defaultTimeout
-    };
+    // Enforce default timeout
+    opts.timeout = opts.timeout || defaultTimeout;
 
-    // Wait a bit before calling so we can return the promise
+    Log.debug('$fh.act call with options: ', opts);
+
+    // Defer call so we can return promise
     $timeout(function() {
       // Check are we online before trying the request
       // For unit tests simply assume we have a connection
-      if ($window.navigator.onLine === true || window.mochaPhantomJS) {
+      if ($window.navigator.onLine) {
         Log.debug('Calling "' + actname + '" cloud side function.');
 
         fh.act(opts, function(res) {
@@ -182,10 +175,6 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
         }, promise, callback);
       }
     }, 0);
-
-    if (promise !== null) {
-      return promise.promise;
-    }
   };
 
   /**
