@@ -1,8 +1,8 @@
 'use strict';
 
-var hlog = require('hlog')
+var fhlog = require('fhlog')
 
 module.exports = function () {
   // Simply use hlog! May change...
-  return hlog;
+  return fhlog;
 };
