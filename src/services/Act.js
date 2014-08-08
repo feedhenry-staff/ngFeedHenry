@@ -5,7 +5,8 @@ var _ = require('underscore')
   , printLogs = true
   , defaultTimeout = 30 * 1000;
 
-module.exports = function(Utils, Log, $q, $window, $timeout) {
+module.exports = function(Utils, FHLog, $q, $window, $timeout) {
+  var log = FHLog.getLogger('Act');
 
   // Error strings used for error type detection
   var ACT_ERRORS = {
@@ -16,7 +17,10 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
     TIMEOUT: 'timeout'
   };
 
-  // Expose error types for checks by user
+  /**
+   * @public
+   * Exposed error types for checks by developers.
+   */
   var ERRORS = this.ERRORS = {
     NO_ACTNAME_PROVIDED: 'NO_ACTNAME_PROVIDED',
     UNKNOWN_ERROR: 'UNKNOWN_ERROR',
@@ -29,6 +33,7 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
 
 
   /**
+   * @private
    * Called on a successful act call (when main.js callback is called with a
    * null error param)
    * It is assumed if a request could not be fulfilled
@@ -39,15 +44,15 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
    * @returns {Object}
    */
   function parseSuccess(actname, res) {
-    Log.debug('Called "' + actname + '" successfully.');
+    log.debug('Called "' + actname + '" successfully.');
 
     return res;
   }
 
 
   /**
-   * Called when an act call has failed. Creates a meaningful error string.
    * @private
+   * Called when an act call has failed. Creates a meaningful error string.
    * @param   {String}      actname
    * @param   {String}      err
    * @param   {Object}      details
@@ -72,12 +77,12 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
       ERR = ERRORS.PARSE_ERROR;
     } else {
       // Cloud code sent error to it's callback
-      Log.debug('"%s" encountered an error in it\'s cloud code. Error ' +
+      log.debug('"%s" encountered an error in it\'s cloud code. Error ' +
         'String: %s, Error Object: %o', actname, err, details);
       ERR = ERRORS.CLOUD_ERROR;
     }
 
-    Log.debug('"%s" failed with error %s', actname, ERR);
+    log.debug('"%s" failed with error %s', actname, ERR);
 
     return {
       type: ERR,
@@ -87,10 +92,11 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
   }
 
   /**
+   * @private
    * Returns a successful act call.
-   * @param {Mixed} res
-   * @param {Promise} [promise]
-   * @param {Function} [callback]
+   * @param {Mixed}     res
+   * @param {Promise}   [promise]
+   * @param {Function}  [callback]
    */
   function resolve(res, promise, callback) {
     Utils.safeApply(function() {
@@ -104,10 +110,11 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
 
 
   /**
+   * @private
    * Returns a failed act call.
-   * @param {Mixed} err
-   * @param {Promise} [promise]
-   * @param {Function} [callback]
+   * @param {Mixed}     err
+   * @param {Promise}   [promise]
+   * @param {Function}  [callback]
    */
   function reject(err, promise, callback) {
     Utils.safeApply(function() {
@@ -146,14 +153,14 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
     // Enforce default timeout
     opts.timeout = opts.timeout || defaultTimeout;
 
-    Log.debug('$fh.act call with options: ', opts);
+    log.debug('$fh.act call with options: ', opts);
 
     // Defer call so we can return promise
     $timeout(function() {
       // Check are we online before trying the request
       // For unit tests simply assume we have a connection
       if ($window.navigator.onLine) {
-        Log.debug('Calling "' + actname + '" cloud side function.');
+        log.debug('Calling "' + actname + '" cloud side function.');
 
         fh.act(opts, function(res) {
           resolve(parseSuccess(actname, res), promise, callback);
@@ -161,7 +168,7 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
           reject(parseFail(actname, err, msg), promise, callback);
         });
       } else {
-        Log.debug('Could not call "' + actname + '". No network connection.');
+        log.debug('Could not call "' + actname + '". No network connection.');
 
         reject({
           type: ERRORS.NO_NETWORK,
@@ -172,9 +179,10 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
     }, 0);
   };
 
+
   /**
-   * Get the default timeout for Act calls in milliseconds
    * @public
+   * Get the default timeout for Act calls in milliseconds
    * @returns {Number}
    */
   this.getDefaultTimeout = function () {
@@ -183,8 +191,8 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
 
 
   /**
-   * Set the default timeout for Act calls in milliseconds
    * @public
+   * Set the default timeout for Act calls in milliseconds
    * @param {Number} t The timeout, in milliseconds, to use
    */
   this.setDefaultTimeout = function(t) {
@@ -193,16 +201,16 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
 
 
   /**
-   * Disbale debugging logging by this service
    * @public
+   * Disbale debugging logging by this service
    */
   this.disableLogging = function() {
     printLogs = false;
   };
 
   /**
-   * Enable debug logging by this service
    * @public
+   * Enable debug logging by this service
    */
   this.enableLogging = function() {
     printLogs = true;
