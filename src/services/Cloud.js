@@ -1,7 +1,7 @@
 'use strict';
 
 var _ = require('underscore')
-  , fh = $fh
+  , fh = $fh // Once fh-js-sdk is on npm we can require it here
   , printLogs = true
   , timeout = 30 * 1000;
 
@@ -16,9 +16,11 @@ var DEFAULT_OPTS = {
 module.exports = function (Utils, Log, $q, $timeout) {
 
   /**
-   * Perform the cloud request.
-   * @param {Object}    opts
-   * @param {Function}  [callback]
+   * Perform the cloud request returning a promise or null.
+   * @private
+   * @param   {Object}    opts
+   * @param   {Function}  [callback]
+   * @returns {Promise|null}
    */
   function cloudRequest (opts, callback) {
     var promise = null;
@@ -73,8 +75,10 @@ module.exports = function (Utils, Log, $q, $timeout) {
 
   /**
    * Manually provide HTTP verb and all options as per SDK docs
-   * @param {Object}    opts
-   * @param {Function}  callback
+   * @public
+   * @param   {Object}    opts      The options to use for the request
+   * @param   {Function}  callback  Callback function
+   * @returns {Promise|null}
    */
   this.request = function (opts, callback) {
     return cloudRequest(opts, callback);
@@ -83,7 +87,8 @@ module.exports = function (Utils, Log, $q, $timeout) {
 
   /**
    * Get the default timeout for Cloud calls in milliseconds
-   * @return {Number}
+   * @public
+   * @returns {Number}
    */
   this.getDefaultTimeout = function () {
     return timeout;
@@ -92,7 +97,8 @@ module.exports = function (Utils, Log, $q, $timeout) {
 
   /**
    * Set the default timeout for Cloud calls in milliseconds
-   * @param {Number} t
+   * @public
+   * @param {Number} t New timeout value in milliseconds
    */
   this.setDefaultTimeout = function(t) {
     timeout = t;
@@ -101,6 +107,7 @@ module.exports = function (Utils, Log, $q, $timeout) {
 
   /**
    * Disbale debugging logging by this service
+   * @public
    */
   this.disableLogging = function() {
     printLogs = false;
@@ -109,6 +116,7 @@ module.exports = function (Utils, Log, $q, $timeout) {
 
   /**
    * Enable debug logging by this service
+   * @public
    */
   this.enableLogging = function() {
     printLogs = true;

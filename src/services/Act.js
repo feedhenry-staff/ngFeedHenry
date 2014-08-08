@@ -1,15 +1,9 @@
 'use strict';
 
-/**
- * Angular shim for using $fh.act.
- * Works similar to $fh.act but supports promises and a Node.js
- * callback style instead
- */
-
 var _ = require('underscore')
   , fh = $fh // Once fh-js-sdk is on npm we can require it here
   , printLogs = true
-  , defaultTimeout = 20 * 1000;
+  , defaultTimeout = 30 * 1000;
 
 module.exports = function(Utils, Log, $q, $window, $timeout) {
 
@@ -39,9 +33,10 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
    * null error param)
    * It is assumed if a request could not be fulfilled
    * res.errors will be defined.
-   * @param {String}      actname
-   * @param {Object}      res
-   * @param {Function}    callback
+   * @param   {String}      actname
+   * @param   {Object}      res
+   * @param   {Function}    callback
+   * @returns {Object}
    */
   function parseSuccess(actname, res) {
     Log.debug('Called "' + actname + '" successfully.');
@@ -51,12 +46,12 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
 
 
   /**
-   * Called when an act call has failed.
-   * Tries to create a meaningful error string.
-   * @param {String}      actname
-   * @param {String}      err
-   * @param {Object}      details
-   * @param {Function}    callback
+   * Called when an act call has failed. Creates a meaningful error string.
+   * @private
+   * @param   {String}      actname
+   * @param   {String}      err
+   * @param   {Object}      details
+   * @returns {Object}
    */
   function parseFail(actname, err, details) {
     var ERR = null;
@@ -110,7 +105,7 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
 
   /**
    * Returns a failed act call.
-   * @param {Mixed} res
+   * @param {Mixed} err
    * @param {Promise} [promise]
    * @param {Function} [callback]
    */
@@ -127,12 +122,12 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
 
   /**
    * Call an action on the cloud.
-   * @param {String}      actname
-   * @param {Object}      [params]
-   * @param {Function}    [callback]
-   * @param {Number}      [timeout]
+   * @public
+   * @param   {Object}      opts
+   * @param   {Function}    [callback]
+   * @returns {Promise|null}
    */
-  this.callFn = function(opts, callback) {
+  this.request = function(opts, callback) {
     var promise = null;
 
     // We need to use promises as user didn't provide a callback
@@ -179,7 +174,8 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
 
   /**
    * Get the default timeout for Act calls in milliseconds
-   * @return {Number}
+   * @public
+   * @returns {Number}
    */
   this.getDefaultTimeout = function () {
     return defaultTimeout;
@@ -188,15 +184,17 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
 
   /**
    * Set the default timeout for Act calls in milliseconds
-   * @param {Number}
+   * @public
+   * @param {Number} t The timeout, in milliseconds, to use
    */
-  this.setDefaultTimeout = function(timeout) {
-    defaultTimeout = timeout;
+  this.setDefaultTimeout = function(t) {
+    defaultTimeout = t;
   };
 
 
   /**
    * Disbale debugging logging by this service
+   * @public
    */
   this.disableLogging = function() {
     printLogs = false;
@@ -204,6 +202,7 @@ module.exports = function(Utils, Log, $q, $window, $timeout) {
 
   /**
    * Enable debug logging by this service
+   * @public
    */
   this.enableLogging = function() {
     printLogs = true;
