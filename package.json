@@ -6,8 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "private": true,
-  "author": "Evan Shortiss",
-  "license": "MIT",
+  "authors": ["Evan Shortiss"],
+  "license": "Copyright (c) 2014 FeedHenry Ltd, All Rights Reserved.",
   "devDependencies": {
     "grunt": "~0.4.5",
     "browserify": "~4.1.8",
@@ -22,6 +22,6 @@
     "karma-mocha": "~0.1.3",
     "karma-jasmine": "~0.1.5",
     "karma-chrome-launcher": "~0.1.3",
-    "hlog": "0.0.0"
+    "fhlog": "0.0.2"
   }
 }

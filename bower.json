@@ -1,11 +1,11 @@
 {
   "name": "ngFH",
   "version": "0.0.0",
-  "homepage": "https://github.com/evanshortiss/angular-cordova-workflow",
+  "homepage": "https://github.com/feedhenry-staff/ngFeedHenry",
   "authors": [
     "Evan Shortiss"
   ],
-  "license": "MIT",
+  "license": "Copyright (c) 2014 FeedHenry Ltd, All Rights Reserved.",
   "private": true,
   "ignore": [
     "**/.*",
