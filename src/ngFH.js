@@ -8,6 +8,6 @@ module.exports = angular.module('ngFH', [
   'ng',
 
   // Our custom components
-  factories.name
-  services.name,
+  factories.name,
+  services.name
 ]);
