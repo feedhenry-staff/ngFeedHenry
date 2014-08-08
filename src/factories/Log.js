@@ -3,6 +3,6 @@
 var fhlog = require('fhlog')
 
 module.exports = function () {
-  // Simply use hlog! May change...
+  // Simply use fhlog! May change...
   return fhlog;
 };
