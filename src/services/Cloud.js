@@ -13,7 +13,8 @@ var DEFAULT_OPTS = {
   data: {}
 };
 
-module.exports = function (Utils, Log, $q, $timeout) {
+module.exports = function (Utils, FHLog, $q, $timeout) {
+  var log = FHLog.getLogger('Act');
 
   /**
    * Perform the cloud request returning a promise or null.
@@ -41,7 +42,7 @@ module.exports = function (Utils, Log, $q, $timeout) {
       };
     }
 
-    Log.debug('$fh.cloud call with options: ', opts);
+    log.debug('Call with options: %j', opts);
 
     // Defer call so we can return promise
     $timeout(function () {
@@ -53,7 +54,12 @@ module.exports = function (Utils, Log, $q, $timeout) {
   }
 
 
-  // Utility fn to save code duplication
+  /**
+   * @private
+   * Utility fn to save code duplication
+   * @param   {String} verb
+   * @returns {Function}
+   */
   function _genVerbFunc (verb) {
     return function (path, data, callback) {
       return cloudRequest({
@@ -65,17 +71,61 @@ module.exports = function (Utils, Log, $q, $timeout) {
   }
 
 
-  // Shorthand function for each HTTP verb
-  this.GET      = _genVerbFunc('GET');
-  this.PUT      = _genVerbFunc('PUT');
-  this.POST     = _genVerbFunc('POST');
-  this.HEAD     = _genVerbFunc('HEAD');
-  this.DELETE   = _genVerbFunc('DELETE');
+  /**
+   * @public
+   * Shorthand method for GET request.
+   * @param   {String}  path
+   * @param   {Mixed}   data
+   * @returns {Promise|null}
+   */
+  this.get          = _genVerbFunc('GET');
 
 
   /**
-   * Manually provide HTTP verb and all options as per SDK docs
    * @public
+   * Shorthand method for PUT request.
+   * @param   {String}  path
+   * @param   {Mixed}   data
+   * @returns {Promise|null}
+   */
+  this.put          = _genVerbFunc('PUT');
+
+
+  /**
+   * @public
+   * Shorthand method for POST request.
+   * @param   {String}  path
+   * @param   {Mixed}   data
+   * @returns {Promise|null}
+   */
+  this.post         = _genVerbFunc('POST');
+
+
+  /**
+   * @public
+   * Shorthand method for HEAD request.
+   * @param   {String}  path
+   * @param   {Mixed}   data
+   * @returns {Promise|null}
+   */
+  this.head         = _genVerbFunc('HEAD');
+
+
+  /**
+   * @public
+   * Shorthand method for DELETE request.
+   * @param   {String}  path
+   * @param   {Mixed}   data
+   * @returns {Promise|null}
+   */
+  this['delete']    = _genVerbFunc('DELETE');
+
+
+
+
+  /**
+   * @public
+   * Manually provide HTTP verb and all options as per SDK docs.
    * @param   {Object}    opts      The options to use for the request
    * @param   {Function}  callback  Callback function
    * @returns {Promise|null}
@@ -86,8 +136,8 @@ module.exports = function (Utils, Log, $q, $timeout) {
 
 
   /**
-   * Get the default timeout for Cloud calls in milliseconds
    * @public
+   * Get the default timeout for Cloud calls in milliseconds
    * @returns {Number}
    */
   this.getDefaultTimeout = function () {
@@ -96,8 +146,8 @@ module.exports = function (Utils, Log, $q, $timeout) {
 
 
   /**
-   * Set the default timeout for Cloud calls in milliseconds
    * @public
+   * Set the default timeout for Cloud calls in milliseconds
    * @param {Number} t New timeout value in milliseconds
    */
   this.setDefaultTimeout = function(t) {
@@ -115,8 +165,8 @@ module.exports = function (Utils, Log, $q, $timeout) {
 
 
   /**
-   * Enable debug logging by this service
    * @public
+   * Enable debug logging by this service
    */
   this.enableLogging = function() {
     printLogs = true;
