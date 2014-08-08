@@ -2,5 +2,9 @@
 
 module.exports = angular.module('ngFH')
   .service('Utils', ['$rootScope', require('./Utils.js')])
-  .service('FH.Cloud', ['Utils, Log, $q, $timeout', require('./Cloud.js')])
-  .service('FH.Act',   ['Utils, Log, $q, $window, $timeout', require('./Act.js')]);
+  .service('FH.Cloud', ['Utils, FH.Log, $q, $timeout', require('./Cloud.js')])
+  .service('FH.Act',
+    [
+      'Utils, FH.Log, $q, $window, $timeout',
+      require('./Act.js')
+    ]);
