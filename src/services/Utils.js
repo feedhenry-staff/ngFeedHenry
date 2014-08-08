@@ -4,6 +4,7 @@ module.exports = function ($rootScope) {
 
   /**
    * Safely call a function that modifies variables on a scope.
+   * @public
    * @param {Function} fn
    */
   var safeApply = this.safeApply = function (fn) {
@@ -20,7 +21,8 @@ module.exports = function ($rootScope) {
 
 
   /**
-   * Check for an internet connection
+   * Check for an internet connection.
+   * @returns {Boolean}
    */
   this.isOnline = function () {
     return $window.navigator.onLine;
@@ -29,7 +31,8 @@ module.exports = function ($rootScope) {
 
   /**
    * Wrap a success callback in Node.js style.
-   * @param {Function}
+   * @param   {Function}
+   * @returns {Boolean}
    */
   this.onSuccess = function (fn) {
     return function (res) {
@@ -42,7 +45,8 @@ module.exports = function ($rootScope) {
 
   /**
    * Wrap a fail callback in Node.js style.
-   * @param {Function}
+   * @param   {Function}
+   * @returns {Boolean}
    */
   this.onFail = function (fn) {
     return function (err) {
