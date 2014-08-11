@@ -1,12 +1,16 @@
 'use strict';
 
-var _ = require('underscore')
-  , fh = $fh // Once fh-js-sdk is on npm we can require it here
+var fh = $fh // Once fh-js-sdk is on npm we can require it here
   , printLogs = true
   , defaultTimeout = 30 * 1000;
 
-module.exports = function(Utils, FHLog, $q, $window, $timeout) {
-  var log = FHLog.getLogger('Act');
+
+/**
+ * Service to represent FH.Act
+ * @module Act
+ */
+module.exports = function (Utils, FHLog, $q, $window, $timeout) {
+  var log = FHLog.getLogger('FH.Act');
 
   // Error strings used for error type detection
   var ACT_ERRORS = {
@@ -18,8 +22,8 @@ module.exports = function(Utils, FHLog, $q, $window, $timeout) {
   };
 
   /**
-   * @public
    * Exposed error types for checks by developers.
+   * @public
    */
   var ERRORS = this.ERRORS = {
     NO_ACTNAME_PROVIDED: 'NO_ACTNAME_PROVIDED',
@@ -33,11 +37,9 @@ module.exports = function(Utils, FHLog, $q, $window, $timeout) {
 
 
   /**
-   * @private
    * Called on a successful act call (when main.js callback is called with a
    * null error param)
-   * It is assumed if a request could not be fulfilled
-   * res.errors will be defined.
+   * @private
    * @param   {String}      actname
    * @param   {Object}      res
    * @param   {Function}    callback
@@ -51,8 +53,8 @@ module.exports = function(Utils, FHLog, $q, $window, $timeout) {
 
 
   /**
-   * @private
    * Called when an act call has failed. Creates a meaningful error string.
+   * @private
    * @param   {String}      actname
    * @param   {String}      err
    * @param   {Object}      details
@@ -92,8 +94,8 @@ module.exports = function(Utils, FHLog, $q, $window, $timeout) {
   }
 
   /**
-   * @private
    * Returns a successful act call.
+   * @private
    * @param {Mixed}     res
    * @param {Promise}   [promise]
    * @param {Function}  [callback]
@@ -110,8 +112,8 @@ module.exports = function(Utils, FHLog, $q, $window, $timeout) {
 
 
   /**
-   * @private
    * Returns a failed act call.
+   * @private
    * @param {Mixed}     err
    * @param {Promise}   [promise]
    * @param {Function}  [callback]
@@ -153,22 +155,18 @@ module.exports = function(Utils, FHLog, $q, $window, $timeout) {
     // Enforce default timeout
     opts.timeout = opts.timeout || defaultTimeout;
 
-    log.debug('$fh.act call with options: ', opts);
-
-    // Defer call so we can return promise
+    // Defer call so we can return promise first
     $timeout(function() {
-      // Check are we online before trying the request
-      // For unit tests simply assume we have a connection
-      if ($window.navigator.onLine) {
-        log.debug('Calling "' + actname + '" cloud side function.');
+      if (Utils.isOnline()) {
+        log.debug('Making call with opts %j', opts);
 
         fh.act(opts, function(res) {
-          resolve(parseSuccess(actname, res), promise, callback);
+          resolve(parseSuccess(opts.act, res), promise, callback);
         }, function(err, msg) {
-          reject(parseFail(actname, err, msg), promise, callback);
+          reject(parseFail(opts.act, err, msg), promise, callback);
         });
       } else {
-        log.debug('Could not call "' + actname + '". No network connection.');
+        log.debug('Can\'t make act call, no netowrk. Opts: %j', opts);
 
         reject({
           type: ERRORS.NO_NETWORK,
@@ -177,12 +175,14 @@ module.exports = function(Utils, FHLog, $q, $window, $timeout) {
         }, promise, callback);
       }
     }, 0);
+
+    return (promise !== null) ? promise.promise : null;
   };
 
 
   /**
-   * @public
    * Get the default timeout for Act calls in milliseconds
+   * @public
    * @returns {Number}
    */
   this.getDefaultTimeout = function () {
@@ -191,8 +191,8 @@ module.exports = function(Utils, FHLog, $q, $window, $timeout) {
 
 
   /**
-   * @public
    * Set the default timeout for Act calls in milliseconds
+   * @public
    * @param {Number} t The timeout, in milliseconds, to use
    */
   this.setDefaultTimeout = function(t) {
@@ -201,16 +201,16 @@ module.exports = function(Utils, FHLog, $q, $window, $timeout) {
 
 
   /**
-   * @public
    * Disbale debugging logging by this service
+   * @public
    */
   this.disableLogging = function() {
     printLogs = false;
   };
 
   /**
-   * @public
    * Enable debug logging by this service
+   * @public
    */
   this.enableLogging = function() {
     printLogs = true;
