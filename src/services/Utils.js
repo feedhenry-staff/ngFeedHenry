@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function ($rootScope) {
+module.exports = function ($rootScope, $window) {
 
   /**
    * Safely call a function that modifies variables on a scope.
@@ -22,6 +22,7 @@ module.exports = function ($rootScope) {
 
   /**
    * Check for an internet connection.
+   * @public
    * @returns {Boolean}
    */
   this.isOnline = function () {
@@ -31,6 +32,7 @@ module.exports = function ($rootScope) {
 
   /**
    * Wrap a success callback in Node.js style.
+   * @public
    * @param   {Function}
    * @returns {Boolean}
    */
@@ -45,6 +47,7 @@ module.exports = function ($rootScope) {
 
   /**
    * Wrap a fail callback in Node.js style.
+   * @public
    * @param   {Function}
    * @returns {Boolean}
    */
