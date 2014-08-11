@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('underscore')
+var xtend = require('xtend')
   , fh = $fh // Once fh-js-sdk is on npm we can require it here
   , printLogs = true
   , timeout = 30 * 1000;
@@ -13,8 +13,12 @@ var DEFAULT_OPTS = {
   data: {}
 };
 
+/**
+ * Service to represent FH.Cloud
+ * @module Cloud
+ */
 module.exports = function (Utils, FHLog, $q, $timeout) {
-  var log = FHLog.getLogger('Act');
+  var log = FHLog.getLogger('FH.Cloud');
 
   /**
    * Perform the cloud request returning a promise or null.
@@ -27,7 +31,7 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
     var promise = null;
 
     // Define all options
-    opts = _.extend(DEFAULT_OPTS, opts);
+    opts = xtend(DEFAULT_OPTS, opts);
 
     // We need to use promises as user didn't provide a callback
     if (!callback) {
@@ -42,10 +46,10 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
       };
     }
 
-    log.debug('Call with options: %j', opts);
-
     // Defer call so we can return promise
     $timeout(function () {
+      log.debug('Call with options: %j', opts);
+
       fh.cloud(opts, Utils.onSuccess(callback), Utils.onFail(callback));
     }, 0);
 
@@ -55,8 +59,8 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
 
 
   /**
-   * @private
    * Utility fn to save code duplication
+   * @private
    * @param   {String} verb
    * @returns {Function}
    */
@@ -72,8 +76,9 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
 
 
   /**
-   * @public
    * Shorthand method for GET request.
+   * @public
+   * @function
    * @param   {String}  path
    * @param   {Mixed}   data
    * @returns {Promise|null}
@@ -82,8 +87,9 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
 
 
   /**
-   * @public
    * Shorthand method for PUT request.
+   * @public
+   * @function
    * @param   {String}  path
    * @param   {Mixed}   data
    * @returns {Promise|null}
@@ -92,8 +98,9 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
 
 
   /**
-   * @public
    * Shorthand method for POST request.
+   * @public
+   * @function
    * @param   {String}  path
    * @param   {Mixed}   data
    * @returns {Promise|null}
@@ -102,8 +109,9 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
 
 
   /**
-   * @public
    * Shorthand method for HEAD request.
+   * @public
+   * @function
    * @param   {String}  path
    * @param   {Mixed}   data
    * @returns {Promise|null}
@@ -112,8 +120,9 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
 
 
   /**
-   * @public
    * Shorthand method for DELETE request.
+   * @public
+   * @function
    * @param   {String}  path
    * @param   {Mixed}   data
    * @returns {Promise|null}
@@ -124,8 +133,8 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
 
 
   /**
-   * @public
    * Manually provide HTTP verb and all options as per SDK docs.
+   * @public
    * @param   {Object}    opts      The options to use for the request
    * @param   {Function}  callback  Callback function
    * @returns {Promise|null}
@@ -136,8 +145,8 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
 
 
   /**
-   * @public
    * Get the default timeout for Cloud calls in milliseconds
+   * @public
    * @returns {Number}
    */
   this.getDefaultTimeout = function () {
@@ -146,8 +155,8 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
 
 
   /**
-   * @public
    * Set the default timeout for Cloud calls in milliseconds
+   * @public
    * @param {Number} t New timeout value in milliseconds
    */
   this.setDefaultTimeout = function(t) {
@@ -165,8 +174,8 @@ module.exports = function (Utils, FHLog, $q, $timeout) {
 
 
   /**
-   * @public
    * Enable debug logging by this service
+   * @public
    */
   this.enableLogging = function() {
     printLogs = true;
