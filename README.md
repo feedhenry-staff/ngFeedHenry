@@ -64,8 +64,10 @@ Sample errors usage:
 ```javascript
 Act.request({
   act: 'login',
-  u: 'username',
-  p: 'password'
+  req: {
+    u: 'username',
+    p: 'password'
+  }
 }, function (err, res) {
     if (err && err.type === Act.ERRORS.TIMEOUT) {
       // Handle it as you see fit etc...
@@ -85,14 +87,13 @@ callback function that follows the Node.js convention of taking an error
 as the first parameter and a result as the second. If a callback isn't provided
 a promise is returned.
 
-#### .get/put/post/head/delete(opts[, callback])
+#### .get/put/post/head/delete(path, data[, callback])
 Perform a request of the specified type providing a regular options object to
 the fh-js-sdk. An optional *callback* is accepted. If no callback is provided
 a promise is returned.
 
 ```javascript
-Cloud.post({
-  path: '/phones',
+Cloud.post('/phones', {
   model: 'S3',
   make: 'Samsung',
 }, function (err, res) {
