@@ -11,7 +11,7 @@ srcFiles = $(shell find ./src -type f -name '*.js' | xargs)
 default: format
 
 # Test file for formatting and errors, then run tests
-test:format
+test:debugbuild
 	karma start
 
 # Test file formatting and for errors
@@ -23,5 +23,8 @@ format:
 	$(jshint) $(srcFiles)
 	@echo "JSHint pass!\n"
 
-build:test
+debugbuild:
+	$(browserify) -e ./src/ngFH.js -o ./test/bundle.js -d
+
+build:format
 	$(browserify) -e ./src/ngFH.js -o ./dist/ngFH.js
