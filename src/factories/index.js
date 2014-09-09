@@ -1,4 +1,4 @@
 'use strict';
 
 module.exports = angular.module('ngFH')
-  .service('FH.Log', require('./Log.js'));
+  .factory('Log', require('./Log.js'));
