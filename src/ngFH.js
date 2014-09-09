@@ -1,13 +1,8 @@
 'use strict';
 
-var services = require('./services')
-  , factories = require('./factories');
+// Register ngFH module
+module.exports = angular.module('ngFH', ['ng']);
 
-module.exports = angular.module('ngFH', [
-  // Need general angular deps
-  'ng',
-
-  // Our custom components
-  factories.name,
-  services.name
-]);
+// Bind our modules to ngFH
+require('./factories');
+require('./services');
