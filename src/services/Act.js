@@ -9,8 +9,8 @@ var fh = $fh // Once fh-js-sdk is on npm we can require it here
  * Service to represent FH.Act
  * @module Act
  */
-module.exports = function (Utils, FHLog, $q, $window, $timeout) {
-  var log = FHLog.getLogger('FH.Act');
+module.exports = function (Utils, Log, $q, $timeout) {
+  var log = Log.getLogger('FH.Act');
 
   // Error strings used for error type detection
   var ACT_ERRORS = {
@@ -20,6 +20,7 @@ module.exports = function (Utils, FHLog, $q, $window, $timeout) {
     INTERNAL_ERROR: 'internal error in',
     TIMEOUT: 'timeout'
   };
+
 
   /**
    * Exposed error types for checks by developers.
@@ -66,7 +67,7 @@ module.exports = function (Utils, FHLog, $q, $window, $timeout) {
     if (err === ACT_ERRORS.NO_ACTNAME) {
       ERR = ERRORS.NO_ACTNAME_PROVIDED;
     } else if (err !== 'error_ajaxfail') {
-      ERR = ERRORS.UKNOWN_ERROR;
+      ERR = ERRORS.UNKNOWN_ERROR;
     } else if (err === ERRORS.NO_ACTNAME_PROVIDED) {
       ERR = ERRORS.NO_ACTNAME_PROVIDED;
     } else if (
@@ -93,41 +94,6 @@ module.exports = function (Utils, FHLog, $q, $window, $timeout) {
     };
   }
 
-  /**
-   * Returns a successful act call.
-   * @private
-   * @param {Mixed}     res
-   * @param {Promise}   [promise]
-   * @param {Function}  [callback]
-   */
-  function resolve(res, promise, callback) {
-    Utils.safeApply(function() {
-      if (callback) {
-        callback(null, res);
-      } else {
-        promise.resolve(res);
-      }
-    });
-  }
-
-
-  /**
-   * Returns a failed act call.
-   * @private
-   * @param {Mixed}     err
-   * @param {Promise}   [promise]
-   * @param {Function}  [callback]
-   */
-  function reject(err, promise, callback) {
-    Utils.safeApply(function() {
-      if (callback) {
-        callback(err, null);
-      } else {
-        promise.reject(err);
-      }
-    });
-  }
-
 
   /**
    * Call an action on the cloud.
@@ -136,47 +102,37 @@ module.exports = function (Utils, FHLog, $q, $window, $timeout) {
    * @param   {Function}    [callback]
    * @returns {Promise|null}
    */
-  this.request = function(opts, callback) {
-    var promise = null;
-
-    // We need to use promises as user didn't provide a callback
-    if (!callback) {
-      promise = $q.defer();
-
-      callback = function (err, res) {
-        if (err) {
-          promise.reject(err);
-        } else {
-          promise.resolve(res);
-        }
-      };
-    }
-
-    // Enforce default timeout
-    opts.timeout = opts.timeout || defaultTimeout;
+  this.request = function(opts) {
+    var deferred = $q.defer()
+      , success
+      , fail;
 
     // Defer call so we can return promise first
-    $timeout(function() {
-      if (Utils.isOnline()) {
-        log.debug('Making call with opts %j', opts);
+    if (Utils.isOnline()) {
+      log.debug('Making call with opts %j', opts);
 
-        fh.act(opts, function(res) {
-          resolve(parseSuccess(opts.act, res), promise, callback);
-        }, function(err, msg) {
-          reject(parseFail(opts.act, err, msg), promise, callback);
-        });
-      } else {
-        log.debug('Can\'t make act call, no netowrk. Opts: %j', opts);
+      success = Utils.safeCallback(function (res) {
+        deferred.resolve(parseSuccess(opts.act, res));
+      });
 
-        reject({
+      fail = Utils.safeCallback(function (err, msg) {
+        deferred.reject(parseFail(opts.act, err, msg));
+      });
+
+      fh.act(opts, success, fail);
+    } else {
+      log.debug('Can\'t make act call, no netowrk. Opts: %j', opts);
+
+      $timeout(function () {
+        deferred.reject({
           type: ERRORS.NO_NETWORK,
           err: null,
           msg: null
-        }, promise, callback);
-      }
-    }, 0);
+        });
+      });
+    }
 
-    return (promise !== null) ? promise.promise : null;
+    return deferred.promise;
   };
 
 
@@ -205,7 +161,7 @@ module.exports = function (Utils, FHLog, $q, $window, $timeout) {
    * @public
    */
   this.disableLogging = function() {
-    printLogs = false;
+    log.setSilent(true);
   };
 
   /**
@@ -213,6 +169,6 @@ module.exports = function (Utils, FHLog, $q, $window, $timeout) {
    * @public
    */
   this.enableLogging = function() {
-    printLogs = true;
+    log.setSilent(false);
   };
 };

@@ -17,8 +17,8 @@ var DEFAULT_OPTS = {
  * Service to represent FH.Cloud
  * @module Cloud
  */
-module.exports = function (Utils, FHLog, $q, $timeout) {
-  var log = FHLog.getLogger('FH.Cloud');
+module.exports = function (Utils, Log, $q, $timeout) {
+  var log = Log.getLogger('FH.Cloud');
 
   /**
    * Perform the cloud request returning a promise or null.

@@ -7,16 +7,41 @@ module.exports = function ($rootScope, $window) {
    * @public
    * @param {Function} fn
    */
-  var safeApply = this.safeApply = function (fn) {
+  var safeApply = this.safeApply = function (fn, args) {
     var phase = $rootScope.$$phase;
 
     if (phase === '$apply' || phase === '$digest') {
-      if (fn && typeof fn === 'function') {
+      if (args) {
+        fn.apply(fn, args);
+      } else {
         fn();
       }
     } else {
-      $rootScope.$apply(fn);
+      if (args) {
+        $rootScope.$apply(function () {
+          fn.apply(fn, args);
+        });
+      } else {
+        $rootScope.$apply(fn);
+      }
     }
+  };
+
+
+  /**
+   * Wrap a callback for safe execution.
+   * If the callback does further async work then this may not work.
+   * @param   {Function} callback
+   * @returns {Function}
+   */
+  this.safeCallback = function (callback) {
+    return function () {
+      var args = Array.prototype.slice.call(arguments);
+
+      safeApply(function () {
+        callback.apply(callback, args);
+      });
+    };
   };
 
 
