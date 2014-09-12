@@ -33,7 +33,7 @@ your code. Add *ngFH* as a dependency of your application and then require
 
 ### FH.Act
 Errors returned by this API are different to the standard ones in the
-fh-js-sdk - they're smarter. Here's a sample error returned to callback.
+fh-js-sdk - they're smarter. Here's a sample error returned to a promise.
 
 ```javascript
 {
@@ -43,9 +43,8 @@ fh-js-sdk - they're smarter. Here's a sample error returned to callback.
 }
 ```
 
-#### .request(opts[, callback])
-Accepts the usual Act call parameters and an optional callback. If no callback
-is provided a promise is returned.
+#### .request(opts)
+Accepts the usual Act call parameters. Returns a promise.
 
 
 #### .ERRORS
@@ -68,12 +67,12 @@ Act.request({
     u: 'username',
     p: 'password'
   }
-}, function (err, res) {
-    if (err && err.type === Act.ERRORS.TIMEOUT) {
-      // Handle it as you see fit etc...
-    } else {
-      // Woohoo!
-    }
+})
+.then(function (res) {
+  // Do something...
+}, function (err) {
+  if (err.type === Act.ERRORS.TIMEOUT) {
+    // Handle it as you see fit etc...
   }
 })
 
@@ -81,26 +80,21 @@ Act.request({
 
 ### FH.Cloud
 
-#### .request(opts[, callback])
-Wrapper for $fh.cloud. Takes the standard options object and an optional
-callback function that follows the Node.js convention of taking an error
-as the first parameter and a result as the second. If a callback isn't provided
-a promise is returned.
+#### .request(opts)
+Wrapper for $fh.cloud. Takes the standard options object. Returns a promise.
 
-#### .get/put/post/head/delete(path, data[, callback])
+#### .get/put/post/head/delete(path, data)
 Perform a request of the specified type providing a regular options object to
-the fh-js-sdk. An optional *callback* is accepted. If no callback is provided
-a promise is returned.
+the fh-js-sdk. A promise is returned.
 
 ```javascript
 Cloud.post('/phones', {
   model: 'S3',
   make: 'Samsung',
-}, function (err, res) {
-	if (err) {
-		// Deal with it...
-	} else {
-		// Great success!
-	}
-});
+})
+.then(function (res) {
+  // Do something...
+}, function (err) {
+  // Oh no...
+})
 ```
