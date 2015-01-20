@@ -1,12 +1,12 @@
 {
-  "name": "ngFH",
+  "name": "ng-feedhenry",
   "version": "0.0.0",
+  "description": "AngularJS friendly FeedHenry SDK wrapper.",
   "homepage": "https://github.com/feedhenry-staff/ngFeedHenry",
   "authors": [
     "Evan Shortiss"
   ],
-  "license": "Copyright (c) 2014 FeedHenry Ltd, All Rights Reserved.",
-  "private": true,
+  "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
