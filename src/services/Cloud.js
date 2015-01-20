@@ -24,37 +24,23 @@ module.exports = function (Utils, Log, $q, $timeout) {
    * Perform the cloud request returning a promise or null.
    * @private
    * @param   {Object}    opts
-   * @param   {Function}  [callback]
    * @returns {Promise|null}
    */
-  function cloudRequest (opts, callback) {
-    var promise = null;
+  function cloudRequest (opts) {
+    var promise = $q.defer();
 
     // Define all options
     opts = xtend(DEFAULT_OPTS, opts);
-
-    // We need to use promises as user didn't provide a callback
-    if (!callback) {
-      promise = $q.defer();
-
-      callback = function (err, res) {
-        if (err) {
-          promise.reject(err);
-        } else {
-          promise.resolve(res);
-        }
-      };
-    }
 
     // Defer call so we can return promise
     $timeout(function () {
       log.debug('Call with options: %j', opts);
 
-      fh.cloud(opts, Utils.onSuccess(callback), Utils.onFail(callback));
+      fh.cloud(opts, promise.resolve, promise.reject);
     }, 0);
 
     // Retrun promise or null
-    return (promise !== null) ? promise.promise : null;
+    return promise.promise;
   }
 
 
@@ -65,12 +51,12 @@ module.exports = function (Utils, Log, $q, $timeout) {
    * @returns {Function}
    */
   function _genVerbFunc (verb) {
-    return function (path, data, callback) {
+    return function (path, data) {
       return cloudRequest({
         path: path,
         data: data,
         type: verb.toUpperCase()
-      }, callback);
+      });
     };
   }
 
@@ -136,11 +122,10 @@ module.exports = function (Utils, Log, $q, $timeout) {
    * Manually provide HTTP verb and all options as per SDK docs.
    * @public
    * @param   {Object}    opts      The options to use for the request
-   * @param   {Function}  callback  Callback function
    * @returns {Promise|null}
    */
-  this.request = function (opts, callback) {
-    return cloudRequest(opts, callback);
+  this.request = function (opts) {
+    return cloudRequest(opts);
   };
 
 

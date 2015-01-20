@@ -1,7 +1,6 @@
 'use strict';
 
 var fh = $fh // Once fh-js-sdk is on npm we can require it here
-  , printLogs = true
   , defaultTimeout = 30 * 1000;
 
 

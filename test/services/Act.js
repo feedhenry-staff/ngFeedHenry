@@ -56,7 +56,7 @@ describe('Act', function () {
             p: 'PASS'
           }
       })
-      .setResponse('Invalid user name and/or password');
+      .setResponse('Invalid user name and/or password', null);
 
       Act.request({
         act: 'login',
