@@ -4,3 +4,4 @@ fhc-debug.log
 bower_components
 npm-debug.log
 test/ngFH.js
+test/bundle.js
