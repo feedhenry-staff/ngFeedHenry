@@ -1,6 +1,7 @@
 'use strict';
 
 var fh = $fh // Once fh-js-sdk is on npm we can require it here
+  , fhlog = require('fhlog')
   , defaultTimeout = 30 * 1000;
 
 
@@ -8,8 +9,8 @@ var fh = $fh // Once fh-js-sdk is on npm we can require it here
  * Service to represent FH.Act
  * @module Act
  */
-module.exports = function (Utils, Log, $q, $timeout) {
-  var log = Log.getLogger('FH.Act');
+module.exports = function (Utils, $q, $timeout) {
+  var log = fhlog.getLogger('FH.Act');
 
   // Error strings used for error type detection
   var ACT_ERRORS = {

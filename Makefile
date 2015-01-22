@@ -24,7 +24,7 @@ format:
 	@echo "JSHint pass!\n"
 
 debugbuild:
-	$(browserify) -e ./src/ngFH.js -o ./test/bundle.js -d
+	$(browserify) -e ./src/ngFH.js -o ./test/bundle.js
 
 build:format
 	$(browserify) -e ./src/ngFH.js -o ./dist/ngFH.js

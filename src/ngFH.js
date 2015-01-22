@@ -1,8 +1,8 @@
 'use strict';
 
 // Register ngFH module
-module.exports = angular.module('ngFH', ['ng']);
+var app = module.exports = angular.module('ngFeedHenry', ['ng']);
 
 // Bind our modules to ngFH
-require('./factories');
-require('./services');
+require('./factories')(app);
+require('./services')(app);

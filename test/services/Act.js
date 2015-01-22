@@ -7,16 +7,19 @@ var expect = chai.expect;
 describe('Act', function () {
   var Act;
 
-  beforeEach(module('ngFH'));
+  beforeEach(module('ngFeedHenry'));
   beforeEach(inject(function (_Act_) {
     Act = _Act_;
     Act.disableLogging();
+    $fh.createApiShim('act');
   }));
 
   afterEach(function () {
     $fh.act.verifyNoOutstandingRequest();
     $fh.act.verifyNoOutstandingExpectation();
+    $fh.createApiShim('act');
   });
+
 
   describe('#request', function () {
 

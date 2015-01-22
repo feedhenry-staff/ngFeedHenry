@@ -1,13 +1,13 @@
 'use strict';
 
 var xtend = require('xtend')
-  , fh = $fh // Once fh-js-sdk is on npm we can require it here
-  , printLogs = true
+  , fhlog = require('fhlog')
+  , fh = window.$fh // Once fh-js-sdk is on npm we can require it here
   , timeout = 30 * 1000;
 
 var DEFAULT_OPTS = {
   type: 'GET',
-  path: '/cloud/',
+  path: '/',
   timeout: timeout,
   contentType: 'application/json',
   data: {}
@@ -17,8 +17,10 @@ var DEFAULT_OPTS = {
  * Service to represent FH.Cloud
  * @module Cloud
  */
-module.exports = function (Utils, Log, $q, $timeout) {
-  var log = Log.getLogger('FH.Cloud');
+module.exports = function (Utils, PreProcessors, $q, $timeout) {
+  var log = fhlog.getLogger('FH.Cloud');
+
+  this.use = PreProcessors.use;
 
   /**
    * Perform the cloud request returning a promise or null.
@@ -27,20 +29,25 @@ module.exports = function (Utils, Log, $q, $timeout) {
    * @returns {Promise|null}
    */
   function cloudRequest (opts) {
-    var promise = $q.defer();
+    var deferred = $q.defer();
 
     // Define all options
     opts = xtend(DEFAULT_OPTS, opts);
+
+    function doReq (updatedOpts) {
+      fh.cloud(updatedOpts, deferred.resolve, deferred.reject);
+    }
 
     // Defer call so we can return promise
     $timeout(function () {
       log.debug('Call with options: %j', opts);
 
-      fh.cloud(opts, promise.resolve, promise.reject);
+      PreProcessors.exec(params)
+        .then(doReq, deferred.reject, deferred.notify);
     }, 0);
 
     // Retrun promise or null
-    return promise.promise;
+    return deferred.promise;
   }
 
 
@@ -113,7 +120,7 @@ module.exports = function (Utils, Log, $q, $timeout) {
    * @param   {Mixed}   data
    * @returns {Promise|null}
    */
-  this['delete']    = _genVerbFunc('DELETE');
+  this.del          = _genVerbFunc('DELETE');
 
 
 
@@ -154,7 +161,7 @@ module.exports = function (Utils, Log, $q, $timeout) {
    * @public
    */
   this.disableLogging = function() {
-    printLogs = false;
+    log.setSilent(true);
   };
 
 
@@ -163,6 +170,6 @@ module.exports = function (Utils, Log, $q, $timeout) {
    * @public
    */
   this.enableLogging = function() {
-    printLogs = true;
+    log.setSilent(false);
   };
 };
