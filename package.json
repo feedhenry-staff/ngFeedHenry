@@ -1,6 +1,6 @@
 {
   "name": "ng-feedhenry",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "./src/ngFH.js",
   "description": "AngularJS friendly FeedHenry SDK wrapper.",
   "repository": "feedhenry-staff/ngFeedHenry",
@@ -10,6 +10,11 @@
   "authors": [
     "Evan Shortiss"
   ],
+  "browserify": {
+    "transform": [
+      "brfs"
+    ]
+  },
   "license": "MIT",
   "devDependencies": {
     "browserify": "~4.1.8",
@@ -26,6 +31,7 @@
   "dependencies": {
     "xtend": "^4.0.0",
     "fhlog": "~0.1.4",
-    "route-matcher": "0.1.0"
+    "route-matcher": "0.1.0",
+    "brfs": "~1.2.0"
   }
 }
