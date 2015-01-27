@@ -14,10 +14,7 @@
     "test",
     "tests"
   ],
-  "dependencies": {
-    "fh-js-sdk": "*",
-    "angular": "1.2.12"
-  },
+  "dependencies": {},
   "devDependencies": {
     "angular-mocks": "1.2.12"
   }

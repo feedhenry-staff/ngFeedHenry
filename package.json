@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "main": "./src/ngFH.js",
   "description": "AngularJS friendly FeedHenry SDK wrapper.",
+  "repository": "feedhenry-staff/ngFeedHenry",
   "scripts": {
     "test": "make test"
   },
