@@ -10724,7 +10724,7 @@ var DEFAULT_OPTS = {
 module.exports = function (Utils, PreProcessors, $q, $timeout) {
   var log = fhlog.getLogger('FH.Cloud');
 
-  this.use = PreProcessors.use;
+  this.use = PreProcessors.use.bind(PreProcessors);
 
   /**
    * Perform the cloud request returning a promise or null.
