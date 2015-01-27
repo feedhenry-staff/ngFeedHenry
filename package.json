@@ -1,6 +1,6 @@
 {
   "name": "ng-feedhenry",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./src/ngFH.js",
   "description": "AngularJS friendly FeedHenry SDK wrapper.",
   "repository": "feedhenry-staff/ngFeedHenry",
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "xtend": "^4.0.0",
-    "fhlog": "0.0.4",
+    "fhlog": "~0.1.4",
     "route-matcher": "0.1.0"
   }
 }
