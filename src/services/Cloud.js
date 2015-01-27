@@ -42,7 +42,7 @@ module.exports = function (Utils, PreProcessors, $q, $timeout) {
     $timeout(function () {
       log.debug('Call with options: %j', opts);
 
-      PreProcessors.exec(params)
+      PreProcessors.exec(opts)
         .then(doReq, deferred.reject, deferred.notify);
     }, 0);
 

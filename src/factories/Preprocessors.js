@@ -55,7 +55,7 @@ module.exports = function Preprocessors ($q, $timeout) {
             fn:fn,
             idx: this.count++
           }]
-        }
+        };
       }
     },
 
