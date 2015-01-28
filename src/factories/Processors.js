@@ -118,7 +118,7 @@ module.exports = function Preprocessors ($q, $timeout) {
       var processors = this.getProcessorsForRoute(
         this.preprocessors.before, params.path);
 
-      this.exec(processors, params);
+      return this.exec(processors, params);
     },
 
     execAfter: function (params, deferred) {
@@ -127,7 +127,7 @@ module.exports = function Preprocessors ($q, $timeout) {
         this.preprocessors.after, params.path);
 
       return function (res) {
-        self.exec(processors, res)
+        return self.exec(processors, res)
           .then(deferred.resolve, deferred.reject);
       };
     },
