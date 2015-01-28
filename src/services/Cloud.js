@@ -17,10 +17,11 @@ var DEFAULT_OPTS = {
  * Service to represent FH.Cloud
  * @module Cloud
  */
-module.exports = function (Utils, PreProcessors, $q, $timeout) {
+module.exports = function (Utils, Processors, $q, $timeout) {
   var log = fhlog.getLogger('FH.Cloud');
 
-  this.use = PreProcessors.use.bind(PreProcessors);
+  this.before = Processors.before.bind(Processors);
+  this.after = Processors.after.bind(Processors);
 
   /**
    * Perform the cloud request returning a promise or null.
@@ -35,14 +36,18 @@ module.exports = function (Utils, PreProcessors, $q, $timeout) {
     opts = xtend(DEFAULT_OPTS, opts);
 
     function doReq (updatedOpts) {
-      fh.cloud(updatedOpts, deferred.resolve, deferred.reject);
+      fh.cloud(
+        updatedOpts,
+        Processors.execAfter(opts, deferred),
+        deferred.reject
+      );
     }
 
     // Defer call so we can return promise
     $timeout(function () {
-      log.debug('Call with options: %j', opts);
+      log.debug('Call with path: %s', opts.path);
 
-      PreProcessors.exec(opts)
+      Processors.execBefore(opts)
         .then(doReq, deferred.reject, deferred.notify);
     }, 0);
 

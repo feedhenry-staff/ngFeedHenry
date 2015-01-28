@@ -10384,25 +10384,49 @@ module.exports = function Preprocessors ($q, $timeout) {
     count: 0,
 
     preprocessors: {
-      '*': {
-        stack: [],
-        matcher: null
+      before: {
+        '*': {
+          stack: [],
+          matcher: null
+        }
+      },
+      after: {
+        '*': {
+          stack: [],
+          matcher: null
+        }
       }
     },
 
     reset: function () {
       this.preprocessors = {
-        '*': {
-          stack: [],
-          matcher: null
+        before: {
+          '*': {
+            stack: [],
+            matcher: null
+          }
+        },
+        after: {
+          '*': {
+            stack: [],
+            matcher: null
+          }
         }
       };
     },
 
-    use: function (route, validators, fn) {
+    before: function (route, validators, fn) {
+      this.use(this.preprocessors.before, route, validators, fn);
+    },
+
+    after: function (route, validators, fn) {
+      this.use(this.preprocessors.after, route, validators, fn);
+    },
+
+    use: function (processors, route, validators, fn) {
       // Use this for all routes as no route was provided
       if (typeof route === 'function') {
-        return this.preprocessors['*'].stack.push({
+        return processors['*'].stack.push({
           fn: route,
           idx: this.count++
         });
@@ -10415,7 +10439,7 @@ module.exports = function Preprocessors ($q, $timeout) {
         validators = null;
       }
 
-      var existingMatch = this.getExistingEntryForRoute(route);
+      var existingMatch = this.getExistingEntryForRoute(processors, route);
       if (existingMatch) {
         existingMatch.stack.push({
           fn: fn,
@@ -10424,7 +10448,7 @@ module.exports = function Preprocessors ($q, $timeout) {
       } else {
         var matcher = routeMatcher.call(routeMatcher, route, validators);
 
-        this.preprocessors[route] = {
+        processors[route] = {
           matcher: matcher,
           stack: [{
             fn:fn,
@@ -10435,9 +10459,7 @@ module.exports = function Preprocessors ($q, $timeout) {
     },
 
 
-    getExistingEntryForRoute: function (route) {
-      var processors  = this.preprocessors;
-
+    getExistingEntryForRoute: function (processors, route) {
       for (var i in processors) {
         if (processors[i].matcher && processors[i].matcher.parse(route)) {
           return processors[i];
@@ -10448,11 +10470,11 @@ module.exports = function Preprocessors ($q, $timeout) {
     },
 
 
-    getProcessorsForRoute: function (route) {
+    getProcessorsForRoute: function (processors, route) {
       var requiredProcessors = [];
 
-      for (var pattern in this.preprocessors) {
-        var cur = this.preprocessors[pattern];
+      for (var pattern in processors) {
+        var cur = processors[pattern];
 
         if (pattern === '*') {
           // Star route, these always run so just add them in
@@ -10467,33 +10489,50 @@ module.exports = function Preprocessors ($q, $timeout) {
     },
 
 
-    exec: function (params) {
+    execBefore: function (params) {
+      var processors = this.getProcessorsForRoute(
+        this.processors.before, params.path);
+
+      this.exec(processors, params);
+    },
+
+    execAfter: function (params, deferred) {
+      var self = this;
+      var processors = this.getProcessorsForRoute(
+        this.processors.after, params.path);
+
+      return function (res) {
+        self.exec(processors, res)
+          .then(deferred.resolve, deferred.reject);
+      };
+    },
+
+    exec: function (processors, params) {
       var deferred = $q.defer()
-        , prev = null
-        , preprocessors = this.getProcessorsForRoute(params.path);
+        , prev = null;
 
       // Processors are exectued in the order they were added
-      preprocessors.sort(function (a, b) {
+      processors.sort(function (a, b) {
         return (a < b) ? -1 : 1;
       });
 
       // Need to wait a little to ensure promise is returned in the event
       // that a preprocessor is synchronous
       $timeout(function () {
-        if (preprocessors.length === 0) {
+        if (processors.length === 0) {
           // No processors, just return the original data
           deferred.resolve(params);
-        } else if (preprocessors.length === 1) {
+        } else if (processors.length === 1) {
           // Run the single processor
-          preprocessors[0].fn(params)
+          processors[0].fn(params)
             .then(deferred.resolve, deferred.reject, deferred.notify);
         } else {
           // Run the first preprocessor
-          prev = preprocessors[0].fn(params);
+          prev = processors[0].fn(params);
 
-          // Run all preprocessors in series from the first
-          for (var i = 1; i < preprocessors.length; i++) {
-            var fn = preprocessors[i].fn;
+          // Run all processors in series from the first
+          for (var i = 1; i < processors.length; i++) {
+            var fn = processors[i].fn;
             prev = prev.then(fn, deferred.reject, deferred.notify);
           }
 
@@ -10512,10 +10551,10 @@ module.exports = function Preprocessors ($q, $timeout) {
 
 module.exports = function factories (app) {
   app
-    .factory('PreProcessors', require('./Preprocessors.js'));
+    .factory('Processors', require('./Processors.js'));
 };
 
-},{"./Preprocessors.js":24}],26:[function(require,module,exports){
+},{"./Processors.js":24}],26:[function(require,module,exports){
 'use strict';
 
 // Register ngFH module
@@ -10721,10 +10760,11 @@ var DEFAULT_OPTS = {
  * Service to represent FH.Cloud
  * @module Cloud
  */
-module.exports = function (Utils, PreProcessors, $q, $timeout) {
+module.exports = function (Utils, Processors, $q, $timeout) {
   var log = fhlog.getLogger('FH.Cloud');
 
-  this.use = PreProcessors.use.bind(PreProcessors);
+  this.before = Processors.before.bind(Processors);
+  this.after = Processors.after.bind(Processors);
 
   /**
    * Perform the cloud request returning a promise or null.
@@ -10739,14 +10779,18 @@ module.exports = function (Utils, PreProcessors, $q, $timeout) {
     opts = xtend(DEFAULT_OPTS, opts);
 
     function doReq (updatedOpts) {
-      fh.cloud(updatedOpts, deferred.resolve, deferred.reject);
+      fh.cloud(
+        updatedOpts,
+        Processors.execAfter(opts, deferred),
+        deferred.reject
+      );
     }
 
     // Defer call so we can return promise
     $timeout(function () {
-      log.debug('Call with options: %j', opts);
+      log.debug('Call with path: %s', opts.path);
 
-      PreProcessors.exec(opts)
+      Processors.execBefore(opts)
         .then(doReq, deferred.reject, deferred.notify);
     }, 0);
 

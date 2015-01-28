@@ -4,14 +4,14 @@
 
 var expect = chai.expect;
 
-describe('PreProcessors', function () {
+describe('Processors', function () {
   var Pre, $timeout, $q;
 
   beforeEach(module('ngFeedHenry'));
-  beforeEach(inject(function (_PreProcessors_, _$timeout_, _$q_) {
+  beforeEach(inject(function (_Processors_, _$timeout_, _$q_) {
     $q = _$q_
     $timeout = _$timeout_;
-    Pre = _PreProcessors_;
+    Pre = _Processors_;
     $fh.createApiShim('cloud');
   }));
 
@@ -46,67 +46,75 @@ describe('PreProcessors', function () {
 
   describe('#use', function () {
 
-    it('Should add the given processor function to * the stack', function () {
-      Pre.use(dummyFn);
-      expect(Pre.preprocessors['*'].stack).to.have.length(1);
-      expect(Pre.preprocessors['*'].stack[0].fn).to.equal(dummyFn);
+    it('Should add given processor fn to before * the stack', function () {
+      Pre.use(Pre.preprocessors.before, dummyFn);
+      expect(Pre.preprocessors.before['*'].stack).to.have.length(1);
+      expect(Pre.preprocessors.before['*'].stack[0].fn).to.equal(dummyFn);
     });
 
-    it('Should add the given route and function to the stack', function () {
-      Pre.use('/users', dummyFn);
-      expect(Pre.preprocessors['/users'].stack).to.have.length(1);
-      expect(Pre.preprocessors['/users'].stack[0].fn).to.equal(dummyFn);
+    it('Should add the given route and function to the after stack', function () {
+      Pre.use(Pre.preprocessors.after, '/users', dummyFn);
+      expect(Pre.preprocessors.after['/users'].stack).to.have.length(1);
+      expect(Pre.preprocessors.after['/users'].stack[0].fn).to.equal(dummyFn);
     });
 
-    it('Should add the two given functions to the same route', function () {
-      Pre.use('/users', dummyFn);
-      Pre.use('/users', dummyFn);
+    it('Should add th given functions to the same before route', function () {
+      Pre.use(Pre.preprocessors.before, '/users', dummyFn);
+      Pre.use(Pre.preprocessors.before, '/users', dummyFn);
 
-      expect(Pre.preprocessors['/users'].stack).to.have.length(2);
-      expect(Pre.preprocessors['/users'].stack[0].fn).to.equal(dummyFn);
-      expect(Pre.preprocessors['/users'].stack[1].fn).to.equal(dummyFn);
+      expect(Pre.preprocessors.before['/users'].stack).to.have.length(2);
+      expect(Pre.preprocessors.before['/users'].stack[0].fn).to.equal(dummyFn);
+      expect(Pre.preprocessors.before['/users'].stack[1].fn).to.equal(dummyFn);
     });
 
   });
 
   describe('#getExistingEntryForRoute', function () {
     it('Should return null', function () {
-      var res = Pre.getExistingEntryForRoute('/users');
+      var res = Pre.getExistingEntryForRoute(
+        Pre.preprocessors.before, '/users'
+      );
       expect(res).to.be.null;
     });
 
     it('Should return an existing entry', function () {
-      Pre.use('/users', dummyFn);
+      Pre.before('/users', dummyFn);
 
-      var res = Pre.getExistingEntryForRoute('/users');
+      var res = Pre.getExistingEntryForRoute(
+        Pre.preprocessors.before, '/users'
+      );
       expect(res).to.be.defined;
     });
   });
 
   describe('#getProcessorsForRoute', function () {
     it('Should return an empty array', function () {
-      var arr = Pre.getProcessorsForRoute();
+      var arr = Pre.getProcessorsForRoute(Pre.preprocessors.after);
       expect(arr).to.have.length(0);
     });
 
     it('Should return an array with one entry', function () {
-      Pre.use(dummyFn);
-      expect(Pre.getProcessorsForRoute()).to.have.length(1);
+      Pre.use(Pre.preprocessors.after, dummyFn);
+      expect(
+        Pre.getProcessorsForRoute(Pre.preprocessors.after)
+      ).to.have.length(1);
     });
 
     it('Should return an array with two entries', function () {
       // These will count toward results
-      Pre.use(dummyFn);
-      Pre.use('/users', dummyFn);
+      Pre.use(Pre.preprocessors.after, dummyFn);
+      Pre.use(Pre.preprocessors.after, '/users', dummyFn);
 
       // This should not be in returned results
-      Pre.use('/api', dummyFn);
+      Pre.use(Pre.preprocessors.after, '/api', dummyFn);
 
-      expect(Pre.getProcessorsForRoute('/users')).to.have.length(2);
+      expect(
+        Pre.getProcessorsForRoute(Pre.preprocessors.after, '/users')
+      ).to.have.length(2);
     });
   });
 
-  describe('#exec', function () {
+  describe('#execBefore', function () {
     var TEST_PARAMS = {
       path: '/users',
       data: {
@@ -119,8 +127,18 @@ describe('PreProcessors', function () {
       return JSON.parse(JSON.stringify(obj));
     }
 
+    var before, after;
+
+    beforeEach(function () {
+      before = Pre.preprocessors.before;
+      after = Pre.preprocessors.after;
+    });
+
     it('Should not modify the params', function (done) {
-      var promise = Pre.exec(copy(TEST_PARAMS));
+      var promise = Pre.exec(
+        Pre.getProcessorsForRoute(before, TEST_PARAMS.path),
+        copy(TEST_PARAMS)
+      );
 
       promise.then(function (params) {
         expect(params).to.deep.equal(TEST_PARAMS);
@@ -133,8 +151,11 @@ describe('PreProcessors', function () {
     });
 
     it('Should not modify the params as routes do not match', function (done) {
-      Pre.use('/api', dummyFn)
-      var promise = Pre.exec(copy(TEST_PARAMS));
+      Pre.use(after, '/api', dummyFn)
+      var promise = Pre.exec(
+        Pre.getProcessorsForRoute(after, TEST_PARAMS.path),
+        copy(TEST_PARAMS)
+      );
 
       promise.then(function (params) {
         expect(params).to.deep.equal(TEST_PARAMS);
@@ -147,8 +168,11 @@ describe('PreProcessors', function () {
     });
 
     it('Should modify the params as routes match', function (done) {
-      Pre.use('/users', dummyFn)
-      var promise = Pre.exec(copy(TEST_PARAMS));
+      Pre.use(before, '/users', dummyFn)
+      var promise = Pre.exec(
+        Pre.getProcessorsForRoute(before, TEST_PARAMS.path),
+        copy(TEST_PARAMS)
+      );
 
       promise.then(function (params) {
         expect(params).to.not.deep.equal(TEST_PARAMS);
@@ -161,9 +185,12 @@ describe('PreProcessors', function () {
     });
 
     it('Should modify the params twice as routes match', function (done) {
-      Pre.use('/users', dummyFn)
-      Pre.use(dummyFn2)
-      var promise = Pre.exec(copy(TEST_PARAMS));
+      Pre.use(after, '/users', dummyFn)
+      Pre.use(after, dummyFn2)
+      var promise = Pre.exec(
+        Pre.getProcessorsForRoute(after, TEST_PARAMS.path),
+        copy(TEST_PARAMS)
+      );
 
       promise.then(function (params) {
         expect(params).to.not.deep.equal(TEST_PARAMS);

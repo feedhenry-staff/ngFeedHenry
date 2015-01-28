@@ -101,7 +101,7 @@ Cloud.post('/phones', {
 })
 ```
 
-#### .use([route, validators, ]fn)
+#### .before([route, validators, ]fn)
 Instruct Cloud to run the specified _fn_ on the params of a request that 
 matches a route pattern prior to sending it to the cloud. A similar concept to 
 express middleware, except for outgoing requests. Very useful if you need to 
@@ -130,7 +130,7 @@ matching and to understand the _route_ and _validators_ params.
 
 ```javascript
 // Every function to users/:id e.g users/123abc will include your local id
-Cloud.use('/users/:id', function (params) {
+Cloud.before('/users/:id', function (params) {
   var defer = $q.defer();
 
   // Let's assume get ID is defined above
@@ -141,6 +141,28 @@ Cloud.use('/users/:id', function (params) {
 
     // IMPORTANT: You must pass the params object back to the resolve!
     defer.resolve(params);
+  }, defer.reject);
+
+  return defer.promise;
+});
+```
+
+#### .after([route, validators, ]fn)
+Almost the same as _before_, but instead of running the supplied _fn_ over the 
+input params to $fh.cloud it will run _fn_ on the response received by 
+$fh.cloud if the request was successful. 
+
+Example usage of _after_:
+
+```javascript
+// Upon receiving a response from any request run the through a parser
+Cloud.after('/data', function (response) {
+  var defer = $q.defer();
+
+  parseResponseData(response.data, function (parsedData) {
+    response.parsedData = parsedData;
+
+    defer.resolve(response);
   }, defer.reject);
 
   return defer.promise;
