@@ -10375,6 +10375,36 @@ function extend() {
 },{}],24:[function(require,module,exports){
 'use strict';
 
+module.exports = function (FHUtils, $window) {
+  var ngHash = FHUtils.wrapApiFn($window.$fh.hash);
+
+  /**
+   * Generates a shorthand function to generate hashes of the given type.
+   * @param  {String}   type Type of hash the created function will generate.
+   * @return {Function}
+   */
+  function genHashFn(type) {
+    return function (text) {
+      // ngHash returns a promise when called
+      return ngHash({
+        algorithm: type,
+        text: text
+      });
+    };
+  }
+
+  // Shortcut functions to generate
+  ['MD5', 'SHA1', 'SHA256', 'SHA512']
+    .forEach(function (type) {
+      ngHash[type] = genHashFn(type);
+    });
+
+  return ngHash;
+};
+
+},{}],25:[function(require,module,exports){
+'use strict';
+
 var routeMatcher = require('route-matcher').routeMatcher;
 
 module.exports = function Preprocessors ($q, $timeout) {
@@ -10491,18 +10521,18 @@ module.exports = function Preprocessors ($q, $timeout) {
 
     execBefore: function (params) {
       var processors = this.getProcessorsForRoute(
-        this.processors.before, params.path);
+        this.preprocessors.before, params.path);
 
-      this.exec(processors, params);
+      return this.exec(processors, params);
     },
 
     execAfter: function (params, deferred) {
       var self = this;
       var processors = this.getProcessorsForRoute(
-        this.processors.after, params.path);
+        this.preprocessors.after, params.path);
 
       return function (res) {
-        self.exec(processors, res)
+        return self.exec(processors, res)
           .then(deferred.resolve, deferred.reject);
       };
     },
@@ -10546,15 +10576,46 @@ module.exports = function Preprocessors ($q, $timeout) {
   };
 };
 
-},{"route-matcher":22}],25:[function(require,module,exports){
+},{"route-matcher":22}],26:[function(require,module,exports){
+'use strict';
+
+module.exports = function (FHUtils, $window) {
+  var ngSec = FHUtils.wrapApiFn($window.$fh.sec);
+
+  /**
+   * Generates a shorthand function to generate hashes of the given type.
+   * @param  {String}   type Type of hash the created function will generate.
+   * @return {Function}
+   */
+  function genSecFn(type) {
+    return function (params) {
+      // ngSec returns a promise when called
+      return ngSec({
+        act: type,
+        params: params
+      });
+    };
+  }
+
+  ['keygen', 'encrypt', 'decrypt']
+    .forEach(function (type) {
+      ngSec[type] = genSecFn(type);
+    });
+
+  return ngSec;
+};
+
+},{}],27:[function(require,module,exports){
 'use strict';
 
 module.exports = function factories (app) {
   app
-    .factory('Processors', require('./Processors.js'));
+    .factory('Processors', require('./Processors.js'))
+    .factory('FHSec', require('./Sec.js'))
+    .factory('FHHash', require('./Hash.js'));
 };
 
-},{"./Processors.js":24}],26:[function(require,module,exports){
+},{"./Hash.js":24,"./Processors.js":25,"./Sec.js":26}],28:[function(require,module,exports){
 'use strict';
 
 // Register ngFH module
@@ -10564,183 +10625,7 @@ var app = module.exports = angular.module('ngFeedHenry', ['ng']);
 require('./factories')(app);
 require('./services')(app);
 
-},{"./factories":25,"./services":30}],27:[function(require,module,exports){
-'use strict';
-
-var fh = $fh // Once fh-js-sdk is on npm we can require it here
-  , fhlog = require('fhlog')
-  , defaultTimeout = 30 * 1000;
-
-
-/**
- * Service to represent FH.Act
- * @module Act
- */
-module.exports = function (Utils, $q, $timeout) {
-  var log = fhlog.getLogger('FH.Act');
-
-  // Error strings used for error type detection
-  var ACT_ERRORS = {
-    PARSE_ERROR: 'parseerror',
-    NO_ACTNAME: 'act_no_action',
-    UNKNOWN_ACT: 'no such function',
-    INTERNAL_ERROR: 'internal error in',
-    TIMEOUT: 'timeout'
-  };
-
-
-  /**
-   * Exposed error types for checks by developers.
-   * @public
-   */
-  var ERRORS = this.ERRORS = {
-    NO_ACTNAME_PROVIDED: 'NO_ACTNAME_PROVIDED',
-    UNKNOWN_ERROR: 'UNKNOWN_ERROR',
-    UNKNOWN_ACT: 'UNKNOWN_ACT',
-    CLOUD_ERROR: 'CLOUD_ERROR',
-    TIMEOUT: 'TIMEOUT',
-    PARSE_ERROR: 'PARSE_ERROR',
-    NO_NETWORK: 'NO_NETWORK'
-  };
-
-
-  /**
-   * Called on a successful act call (when main.js callback is called with a
-   * null error param)
-   * @private
-   * @param   {String}      actname
-   * @param   {Object}      res
-   * @param   {Function}    callback
-   * @returns {Object}
-   */
-  function parseSuccess(actname, res) {
-    log.debug('Called "' + actname + '" successfully.');
-
-    return res;
-  }
-
-
-  /**
-   * Called when an act call has failed. Creates a meaningful error string.
-   * @private
-   * @param   {String}      actname
-   * @param   {String}      err
-   * @param   {Object}      details
-   * @returns {Object}
-   */
-  function parseFail(actname, err, details) {
-    var ERR = null;
-
-    if (err === ACT_ERRORS.NO_ACTNAME) {
-      ERR = ERRORS.NO_ACTNAME_PROVIDED;
-    } else if (err !== 'error_ajaxfail') {
-      ERR = ERRORS.UNKNOWN_ERROR;
-    } else if (err === ERRORS.NO_ACTNAME_PROVIDED) {
-      ERR = ERRORS.NO_ACTNAME_PROVIDED;
-    } else if (
-      details.error.toLowerCase().indexOf(ACT_ERRORS.UNKNOWN_ACT) >= 0) {
-      ERR = ERRORS.UNKNOWN_ACT;
-    } else if (
-      details.message.toLowerCase().indexOf(ACT_ERRORS.TIMEOUT) >= 0) {
-      ERR = ERRORS.TIMEOUT;
-    } else if (details.message === ACT_ERRORS.PARSE_ERROR) {
-      ERR = ERRORS.PARSE_ERROR;
-    } else {
-      // Cloud code sent error to it's callback
-      log.debug('"%s" encountered an error in it\'s cloud code. Error ' +
-        'String: %s, Error Object: %o', actname, err, details);
-      ERR = ERRORS.CLOUD_ERROR;
-    }
-
-    log.debug('"%s" failed with error %s', actname, ERR);
-
-    return {
-      type: ERR,
-      err: err,
-      msg: details
-    };
-  }
-
-
-  /**
-   * Call an action on the cloud.
-   * @public
-   * @param   {Object}      opts
-   * @param   {Function}    [callback]
-   * @returns {Promise|null}
-   */
-  this.request = function(opts) {
-    var deferred = $q.defer()
-      , success
-      , fail;
-
-    // Defer call so we can return promise first
-    if (Utils.isOnline()) {
-      log.debug('Making call with opts %j', opts);
-
-      success = Utils.safeCallback(function (res) {
-        deferred.resolve(parseSuccess(opts.act, res));
-      });
-
-      fail = Utils.safeCallback(function (err, msg) {
-        deferred.reject(parseFail(opts.act, err, msg));
-      });
-
-      fh.act(opts, success, fail);
-    } else {
-      log.debug('Can\'t make act call, no netowrk. Opts: %j', opts);
-
-      $timeout(function () {
-        deferred.reject({
-          type: ERRORS.NO_NETWORK,
-          err: null,
-          msg: null
-        });
-      });
-    }
-
-    return deferred.promise;
-  };
-
-
-  /**
-   * Get the default timeout for Act calls in milliseconds
-   * @public
-   * @returns {Number}
-   */
-  this.getDefaultTimeout = function () {
-    return defaultTimeout;
-  };
-
-
-  /**
-   * Set the default timeout for Act calls in milliseconds
-   * @public
-   * @param {Number} t The timeout, in milliseconds, to use
-   */
-  this.setDefaultTimeout = function(t) {
-    defaultTimeout = t;
-  };
-
-
-  /**
-   * Disbale debugging logging by this service
-   * @public
-   */
-  this.disableLogging = function() {
-    log.setSilent(true);
-  };
-
-  /**
-   * Enable debug logging by this service
-   * @public
-   */
-  this.enableLogging = function() {
-    log.setSilent(false);
-  };
-};
-
-},{"fhlog":10}],28:[function(require,module,exports){
+},{"./factories":27,"./services":31}],29:[function(require,module,exports){
 'use strict';
 
 var xtend = require('xtend')
@@ -10760,7 +10645,7 @@ var DEFAULT_OPTS = {
  * Service to represent FH.Cloud
  * @module Cloud
  */
-module.exports = function (Utils, Processors, $q, $timeout) {
+module.exports = function (Processors, $q, $timeout) {
   var log = fhlog.getLogger('FH.Cloud');
 
   this.before = Processors.before.bind(Processors);
@@ -10922,103 +10807,39 @@ module.exports = function (Utils, Processors, $q, $timeout) {
   };
 };
 
-},{"fhlog":10,"xtend":23}],29:[function(require,module,exports){
+},{"fhlog":10,"xtend":23}],30:[function(require,module,exports){
 'use strict';
 
-module.exports = function ($rootScope, $window) {
+module.exports = function ($rootScope, $timeout, $window, $q) {
 
   /**
-   * Safely call a function that modifies variables on a scope.
-   * @public
-   * @param {Function} fn
+   * General purpose wrapper for any API function to promise enable it.
+   * @param  {Function} apiFn The function to wrap.
+   * @return {Function}
    */
-  var safeApply = this.safeApply = function (fn, args) {
-    var phase = $rootScope.$$phase;
+  this.wrapApiFn = function (apiFn) {
+    return function (params) {
+      var defer = $q.defer();
 
-    if (phase === '$apply' || phase === '$digest') {
-      if (args) {
-        fn.apply(fn, args);
-      } else {
-        fn();
-      }
-    } else {
-      if (args) {
-        $rootScope.$apply(function () {
-          fn.apply(fn, args);
-        });
-      } else {
-        $rootScope.$apply(fn);
-      }
-    }
-  };
-
-
-  /**
-   * Wrap a callback for safe execution.
-   * If the callback does further async work then this may not work.
-   * @param   {Function} callback
-   * @returns {Function}
-   */
-  this.safeCallback = function (callback) {
-    return function () {
-      var args = Array.prototype.slice.call(arguments);
-
-      safeApply(function () {
-        callback.apply(callback, args);
+      $timeout(function () {
+        apiFn(params, function (res) {
+          defer.resolve(res);
+        }, defer.reject);
       });
-    };
-  };
 
-
-  /**
-   * Check for an internet connection.
-   * @public
-   * @returns {Boolean}
-   */
-  this.isOnline = function () {
-    return $window.navigator.onLine;
-  };
-
-
-  /**
-   * Wrap a success callback in Node.js style.
-   * @public
-   * @param   {Function}
-   * @returns {Boolean}
-   */
-  this.onSuccess = function (fn) {
-    return function (res) {
-      safeApply(function () {
-        fn (null, res);
-      });
-    };
-  };
-
-
-  /**
-   * Wrap a fail callback in Node.js style.
-   * @public
-   * @param   {Function}
-   * @returns {Boolean}
-   */
-  this.onFail = function (fn) {
-    return function (err) {
-      safeApply(function () {
-        fn (err, null);
-      });
+      return defer.promise;
     };
   };
 
 };
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 module.exports = function services (app) {
   app
-    .service('Utils', require('./Utils.js'))
-    .service('Cloud', require('./Cloud.js'))
-    .service('Act', require('./Act.js'));
+    .service('FHUtils', require('./Utils.js'))
+    .service('FHCloud', require('./Cloud.js'));
 };
 
-},{"./Act.js":27,"./Cloud.js":28,"./Utils.js":29}]},{},[26])
+},{"./Cloud.js":29,"./Utils.js":30}]},{},[28])

@@ -1,6 +1,6 @@
 {
   "name": "ng-feedhenry",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "main": "./src/ngFH.js",
   "description": "AngularJS friendly FeedHenry SDK wrapper.",
   "repository": "feedhenry-staff/ngFeedHenry",
@@ -10,11 +10,6 @@
   "authors": [
     "Evan Shortiss"
   ],
-  "browserify": {
-    "transform": [
-      "brfs"
-    ]
-  },
   "license": "MIT",
   "devDependencies": {
     "browserify": "~4.1.8",
