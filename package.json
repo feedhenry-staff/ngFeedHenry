@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "xtend": "^4.0.0",
-    "fhlog": "~0.1.5",
+    "fhlog": "~0.1.6",
     "route-matcher": "0.1.0",
     "brfs": "~1.2.0"
   }

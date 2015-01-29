@@ -17,7 +17,7 @@ var DEFAULT_OPTS = {
  * Service to represent FH.Cloud
  * @module Cloud
  */
-module.exports = function (Utils, Processors, $q, $timeout) {
+module.exports = function (Processors, $q, $timeout) {
   var log = fhlog.getLogger('FH.Cloud');
 
   this.before = Processors.before.bind(Processors);
