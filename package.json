@@ -1,6 +1,6 @@
 {
   "name": "ng-feedhenry",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "./src/ngFH.js",
   "description": "AngularJS friendly FeedHenry SDK wrapper.",
   "repository": "feedhenry-staff/ngFeedHenry",
