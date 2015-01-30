@@ -51,7 +51,7 @@ module.exports = function (Processors, $q, $timeout) {
 
           // Always call the original as a failure since an HTTP error code
           // was retuned originally.
-          failDefer
+          failDefer.promise
             .then(deferred.reject, deferred.reject);
 
           processFn(failureResponse);
