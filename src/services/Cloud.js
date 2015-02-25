@@ -42,7 +42,7 @@ module.exports = function (Processors, $q, $timeout) {
         // Remark: Would it be useful to pass status codes to after functions?
         Processors.execAfter(opts, deferred),
 
-        function processFailure (failureResponse) {
+        function processFailure (failureResponse, failDetails) {
           // Requires usage of fh-js-sdk with PR for issue #109 merged
           // https://github.com/feedhenry/fh-js-sdk/issues/109
           var failDefer = $q.defer();
@@ -52,7 +52,11 @@ module.exports = function (Processors, $q, $timeout) {
           // Always call the original as a failure since an HTTP error code
           // was retuned originally.
           failDefer.promise
-            .then(deferred.reject, deferred.reject);
+            .then(function (res) {
+              deferred.reject(res, failDetails);
+            }, function (err) {
+              deferred.reject(err, failDetails);
+            });
 
           processFn(failureResponse);
         }
