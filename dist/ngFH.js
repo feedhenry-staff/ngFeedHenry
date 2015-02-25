@@ -1202,7 +1202,7 @@ Logger.prototype.i = Logger.prototype.info;
  * @public
  * Shim for the error Logger function.
  */
-Logger.prototype.e = Logger.prototype.error;
+Logger.prototype.e = Logger.prototype.err;
 
 
 /**
@@ -10634,7 +10634,7 @@ var xtend = require('xtend')
   , timeout = 30 * 1000;
 
 var DEFAULT_OPTS = {
-  type: 'GET',
+  method: 'GET',
   path: '/',
   timeout: timeout,
   contentType: 'application/json',
@@ -10715,7 +10715,7 @@ module.exports = function (Processors, $q, $timeout) {
       return cloudRequest({
         path: path,
         data: data,
-        type: verb.toUpperCase()
+        method: verb.toUpperCase()
       });
     };
   }
