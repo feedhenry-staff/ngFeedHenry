@@ -4,7 +4,9 @@ ngFeedHenry
 This project is dedicated to creating an Angular friendly way to use the
 FeedHenry SDK.
 
-## Why you should you use this?
+## Why should you use this?
+
+### The Basic but Important Answer
 JavaScript applications handle events using callbacks, these callbacks can be
 triggered at any time in the application life cycle. AngularJS applications
 have their own lifecycle that manages the values of variables in different
@@ -16,10 +18,19 @@ This module overcomes the above problem when using the FeedHenry API and
 provides a nice promise based wrapper that follows AngularJS development 
 standards.
 
+### The More Exciting Answer
+This module provides an AngularJS friendly wrapper around the 
+FH JS SDK. It has some really neat features:
+
+* SDK functions are wrapped to return promises.
+* ExpressJS style middleware processors for outgoing $fh.cloud requests.
+* ExpressJS style middleware processors for incoming $fh.cloud responses.
+* Shortcuts for many SDK calls e.g FHCloud.get('/users').then(onOk, onFail)!
+
 ## Usage
 Add this module as a dependency of your Angular app as with other libraries.
 
-```
+```javascript
 angular.module('MyApp', [
   // The usual angular stuff
   'ng',
@@ -36,9 +47,9 @@ controller etc. as required.
 ## API
 Currently the following API functions are wrapped:
 
-* $fh.cloud (FHCloud)
-* $fh.hash (FHHash)
-* $fh.sec (FHSec)
+* $fh.cloud (as FHCloud)
+* $fh.hash (as FHHash)
+* $fh.sec (as FHSec)
 
 
 ### FHCloud
