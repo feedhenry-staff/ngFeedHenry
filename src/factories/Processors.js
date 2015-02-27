@@ -138,7 +138,7 @@ module.exports = function Preprocessors ($q, $timeout) {
 
       // Processors are exectued in the order they were added
       processors.sort(function (a, b) {
-        return (a < b) ? -1 : 1;
+        return (a.idx < b.idx) ? -1 : 1;
       });
 
       // Need to wait a little to ensure promise is returned in the event
