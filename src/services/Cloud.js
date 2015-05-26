@@ -53,9 +53,9 @@ module.exports = function (Processors, $q, $timeout) {
           // was retuned originally.
           failDefer.promise
             .then(function (res) {
-              deferred.reject(res, failDetails);
+              deferred.reject(res || new Error('No Response'), failDetails);
             }, function (err) {
-              deferred.reject(err, failDetails);
+              deferred.reject(res || new Error('No Response'), failDetails);
             });
 
           processFn(failureResponse);
