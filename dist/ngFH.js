@@ -10543,7 +10543,7 @@ module.exports = function Preprocessors ($q, $timeout) {
 
       // Processors are exectued in the order they were added
       processors.sort(function (a, b) {
-        return (a < b) ? -1 : 1;
+        return (a.idx < b.idx) ? -1 : 1;
       });
 
       // Need to wait a little to ensure promise is returned in the event
@@ -10630,13 +10630,12 @@ require('./services')(app);
 
 var xtend = require('xtend')
   , fhlog = require('fhlog')
-  , fh = window.$fh // Once fh-js-sdk is on npm we can require it here
-  , timeout = 30 * 1000;
+  , fh = window.$fh; // Once fh-js-sdk is on npm we can require it here
 
 var DEFAULT_OPTS = {
   method: 'GET',
   path: '/',
-  timeout: timeout,
+  timeout: 30 * 1000,
   contentType: 'application/json',
   data: {}
 };
@@ -10681,9 +10680,9 @@ module.exports = function (Processors, $q, $timeout) {
           // was retuned originally.
           failDefer.promise
             .then(function (res) {
-              deferred.reject(res, failDetails);
-            }, function (err) {
-              deferred.reject(err, failDetails);
+              deferred.reject(res || new Error('No Response'), failDetails);
+            }, function (res) {
+              deferred.reject(res || new Error('No Response'), failDetails);
             });
 
           processFn(failureResponse);
@@ -10795,7 +10794,7 @@ module.exports = function (Processors, $q, $timeout) {
    * @returns {Number}
    */
   this.getDefaultTimeout = function () {
-    return timeout;
+    return DEFAULT_OPTS.timeout;
   };
 
 
@@ -10805,7 +10804,7 @@ module.exports = function (Processors, $q, $timeout) {
    * @param {Number} t New timeout value in milliseconds
    */
   this.setDefaultTimeout = function(t) {
-    timeout = t;
+    DEFAULT_OPTS.timeout = t;
   };
 
 
