@@ -1826,9 +1826,6 @@ exports.log = function (level, str) {
     };
 
     var _each = function (arr, iterator) {
-        if (arr.forEach) {
-            return arr.forEach(iterator);
-        }
         for (var i = 0; i < arr.length; i += 1) {
             iterator(arr[i], i, arr);
         }
@@ -2605,23 +2602,26 @@ exports.log = function (level, str) {
             pause: function () {
                 if (q.paused === true) { return; }
                 q.paused = true;
-                q.process();
             },
             resume: function () {
                 if (q.paused === false) { return; }
                 q.paused = false;
-                q.process();
+                // Need to call q.process once per concurrent
+                // worker to preserve full concurrency after pause
+                for (var w = 1; w <= q.concurrency; w++) {
+                    async.setImmediate(q.process);
+                }
             }
         };
         return q;
     };
-    
+
     async.priorityQueue = function (worker, concurrency) {
-        
+
         function _compareTasks(a, b){
           return a.priority - b.priority;
         };
-        
+
         function _binarySearch(sequence, item, compare) {
           var beg = -1,
               end = sequence.length - 1;
@@ -2635,7 +2635,7 @@ exports.log = function (level, str) {
           }
           return beg;
         }
-        
+
         function _insert(q, data, priority, callback) {
           if (!q.started){
             q.started = true;
@@ -2657,7 +2657,7 @@ exports.log = function (level, str) {
                   priority: priority,
                   callback: typeof callback === 'function' ? callback : null
               };
-              
+
               q.tasks.splice(_binarySearch(q.tasks, item, _compareTasks) + 1, 0, item);
 
               if (q.saturated && q.tasks.length === q.concurrency) {
@@ -2666,15 +2666,15 @@ exports.log = function (level, str) {
               async.setImmediate(q.process);
           });
         }
-        
+
         // Start with a normal queue
         var q = async.queue(worker, concurrency);
-        
+
         // Override push to accept second parameter representing priority
         q.push = function (data, priority, callback) {
           _insert(q, data, priority, callback);
         };
-        
+
         // Remove unshift function
         delete q.unshift;
 
@@ -3406,12 +3406,12 @@ exports.isDirectory = function(path) {
 (function (global){
 /**
  * @license
- * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+ * Lo-Dash 2.4.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern -o ./dist/lodash.js`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
- * Available under MIT license <http://lodash.com/license>
+ * Available under MIT license <https://lodash.com/license>
  */
 ;(function() {
 
@@ -4900,6 +4900,7 @@ exports.isDirectory = function(path) {
     var setBindData = !defineProperty ? noop : function(func, value) {
       descriptor.value = value;
       defineProperty(func, '__bindData__', descriptor);
+      descriptor.value = null;
     };
 
     /**
@@ -9545,7 +9546,7 @@ exports.isDirectory = function(path) {
      * debugging. See http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/#toc-sourceurl
      *
      * For more information on precompiling templates see:
-     * http://lodash.com/custom-builds
+     * https://lodash.com/custom-builds
      *
      * For more information on Chrome extension sandboxes see:
      * http://developer.chrome.com/stable/extensions/sandboxingEval.html
@@ -10114,7 +10115,7 @@ exports.isDirectory = function(path) {
      * @memberOf _
      * @type string
      */
-    lodash.VERSION = '2.4.1';
+    lodash.VERSION = '2.4.2';
 
     // add "Chaining" functions to the wrapper
     lodash.prototype.chain = wrapperChain;
@@ -10425,6 +10426,12 @@ module.exports = function Preprocessors ($q, $timeout) {
           stack: [],
           matcher: null
         }
+      },
+      afterError: {
+        '*': {
+          stack: [],
+          matcher: null
+        }
       }
     },
 
@@ -10441,6 +10448,12 @@ module.exports = function Preprocessors ($q, $timeout) {
             stack: [],
             matcher: null
           }
+        },
+        afterError: {
+          '*': {
+            stack: [],
+            matcher: null
+          }
         }
       };
     },
@@ -10451,6 +10464,10 @@ module.exports = function Preprocessors ($q, $timeout) {
 
     after: function (route, validators, fn) {
       this.use(this.preprocessors.after, route, validators, fn);
+    },
+
+    afterError: function (route, validators, fn) {
+      this.use(this.preprocessors.afterError, route, validators, fn);
     },
 
     use: function (processors, route, validators, fn) {
@@ -10527,6 +10544,17 @@ module.exports = function Preprocessors ($q, $timeout) {
     },
 
     execAfter: function (params, deferred) {
+      var self = this;
+      var processors = this.getProcessorsForRoute(
+        this.preprocessors.after, params.path);
+
+      return function (res) {
+        return self.exec(processors, res)
+          .then(deferred.resolve, deferred.reject);
+      };
+    },
+
+    execAfterError: function (params, deferred) {
       var self = this;
       var processors = this.getProcessorsForRoute(
         this.preprocessors.after, params.path);
@@ -10649,6 +10677,7 @@ module.exports = function (Processors, $q, $timeout) {
 
   this.before = Processors.before.bind(Processors);
   this.after = Processors.after.bind(Processors);
+  this.afterError = Processors.afterError.bind(Processors);
 
   /**
    * Perform the cloud request returning a promise or null.
@@ -10674,18 +10703,20 @@ module.exports = function (Processors, $q, $timeout) {
           // https://github.com/feedhenry/fh-js-sdk/issues/109
           var failDefer = $q.defer();
 
-          var processFn = Processors.execAfter(opts, failDefer);
+          var processFn = Processors.execAfterError(opts, failDefer);
+          var rejection = failDetails;
+          rejection.data = failureResponse;
+          rejection.options = opts;
 
-          // Always call the original as a failure since an HTTP error code
-          // was retuned originally.
+          // If the afterError resolves successfully, this will resolve
           failDefer.promise
             .then(function (res) {
-              deferred.reject(res || new Error('No Response'), failDetails);
+              deferred.resolve(res);
             }, function (res) {
-              deferred.reject(res || new Error('No Response'), failDetails);
+              deferred.reject(res || new Error('No Response'));
             });
 
-          processFn(failureResponse);
+          processFn(rejection);
         }
       );
     }
