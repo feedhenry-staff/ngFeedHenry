@@ -20,7 +20,7 @@
     "linelint": "0.0.2",
     "jshint": "^2.5.3",
     "lintspaces-cli": "0.0.4",
-    "fh-mocks": "0.0.5",
+    "fh-mocks": "~0.0.5",
     "karma-mocha-reporter": "~0.3.1"
   },
   "dependencies": {
