@@ -10557,7 +10557,7 @@ module.exports = function Preprocessors ($q, $timeout) {
     execAfterError: function (params, deferred) {
       var self = this;
       var processors = this.getProcessorsForRoute(
-        this.preprocessors.after, params.path);
+        this.preprocessors.afterError, params.path);
 
       return function (res) {
         return self.exec(processors, res)
