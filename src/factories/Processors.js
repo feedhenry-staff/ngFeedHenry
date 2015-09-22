@@ -20,6 +20,12 @@ module.exports = function Preprocessors ($q, $timeout) {
           stack: [],
           matcher: null
         }
+      },
+      afterError: {
+        '*': {
+          stack: [],
+          matcher: null
+        }
       }
     },
 
@@ -36,6 +42,12 @@ module.exports = function Preprocessors ($q, $timeout) {
             stack: [],
             matcher: null
           }
+        },
+        afterError: {
+          '*': {
+            stack: [],
+            matcher: null
+          }
         }
       };
     },
@@ -46,6 +58,10 @@ module.exports = function Preprocessors ($q, $timeout) {
 
     after: function (route, validators, fn) {
       this.use(this.preprocessors.after, route, validators, fn);
+    },
+
+    afterError: function (route, validators, fn) {
+      this.use(this.preprocessors.afterError, route, validators, fn);
     },
 
     use: function (processors, route, validators, fn) {
@@ -125,6 +141,17 @@ module.exports = function Preprocessors ($q, $timeout) {
       var self = this;
       var processors = this.getProcessorsForRoute(
         this.preprocessors.after, params.path);
+
+      return function (res) {
+        return self.exec(processors, res)
+          .then(deferred.resolve, deferred.reject);
+      };
+    },
+
+    execAfterError: function (params, deferred) {
+      var self = this;
+      var processors = this.getProcessorsForRoute(
+        this.preprocessors.afterError, params.path);
 
       return function (res) {
         return self.exec(processors, res)

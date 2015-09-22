@@ -21,6 +21,7 @@ module.exports = function (Processors, $q, $timeout) {
 
   this.before = Processors.before.bind(Processors);
   this.after = Processors.after.bind(Processors);
+  this.afterError = Processors.afterError.bind(Processors);
 
   /**
    * Perform the cloud request returning a promise or null.
@@ -46,18 +47,20 @@ module.exports = function (Processors, $q, $timeout) {
           // https://github.com/feedhenry/fh-js-sdk/issues/109
           var failDefer = $q.defer();
 
-          var processFn = Processors.execAfter(opts, failDefer);
+          var processFn = Processors.execAfterError(opts, failDefer);
+          var rejection = failDetails;
+          rejection.data = failureResponse;
+          rejection.options = opts;
 
-          // Always call the original as a failure since an HTTP error code
-          // was retuned originally.
+          // If the afterError resolves successfully, this will resolve
           failDefer.promise
             .then(function (res) {
-              deferred.reject(res || new Error('No Response'), failDetails);
+              deferred.resolve(res);
             }, function (res) {
-              deferred.reject(res || new Error('No Response'), failDetails);
+              deferred.reject(res || new Error('No Response'));
             });
 
-          processFn(failureResponse);
+          processFn(rejection);
         }
       );
     }
