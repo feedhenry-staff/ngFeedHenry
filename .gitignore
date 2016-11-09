@@ -2,6 +2,11 @@
 dist
 bundle.js
 
+fhc-debug.log
+npm-debug.log
+test/ngFH.js
+test/bundle.js
+
 ### Node ###
 # Logs
 logs
