@@ -3,10 +3,7 @@
   "version": "0.2.53",
   "main": "./dist/ngFH.js",
   "description": "AngularJS friendly FeedHenry SDK wrapper.",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/feedhenry-staff/ngFeedHenry"
-  },
+  "repository": "feedhenry-staff/ngFeedHenry",
   "scripts": {
     "clean": "rm -r dist test/bundle.js",
     "build": "npm run lint && mkdir dist && ./node_modules/.bin/browserify -e ./src/ngFH.js -o ./dist/ngFH.js",
@@ -36,31 +33,5 @@
     "fhlog": "~0.1.6",
     "route-matcher": "0.1.0",
     "brfs": "~1.2.0"
-  },
-  "gitHead": "abfc130c9968dcdd03a6d14995fa3a85bbf800a6",
-  "bugs": {
-    "url": "https://github.com/feedhenry-staff/ngFeedHenry/issues"
-  },
-  "homepage": "https://github.com/feedhenry-staff/ngFeedHenry",
-  "_id": "ng-feedhenry@0.2.53",
-  "_shasum": "53334c13a3724e5569e63e11dcc67539a937d6ee",
-  "_from": "ng-feedhenry@>=0.2.53 <0.3.0",
-  "_npmVersion": "2.7.5",
-  "_nodeVersion": "0.10.24",
-  "_npmUser": {
-    "name": "evanshortiss",
-    "email": "evanshortiss@gmail.com"
-  },
-  "maintainers": [
-    {
-      "name": "evanshortiss",
-      "email": "evanshortiss@gmail.com"
-    }
-  ],
-  "dist": {
-    "shasum": "53334c13a3724e5569e63e11dcc67539a937d6ee",
-    "tarball": "https://registry.npmjs.org/ng-feedhenry/-/ng-feedhenry-0.2.53.tgz"
-  },
-  "directories": {},
-  "_resolved": "https://registry.npmjs.org/ng-feedhenry/-/ng-feedhenry-0.2.53.tgz"
+  }
 }

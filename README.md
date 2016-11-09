@@ -167,31 +167,6 @@ Cloud.after('/data', function (response) {
 });
 ```
 
-#### .afterError([route, validators, ]fn)
-Almost the same as _after_, but it will run run _fn_ on the response 
-received by $fh.cloud if the request failed. Also, the rejection 
-object passed into _fn_ will contain any data in the failed response 
-in rejection.data, the response's status as rejection.status as well 
-as the original request's options in rejection.options.
-
-If _fn_ resolves successfully, the Cloud call will be resolved successfully.
-If _fn_ resolves unsuccessfully, the Cloud call will be resolved unsuccessfully.
-
-Example usage of _afterError_:
-
-```javascript
-// Upon receiving a 401 response do something and try request again
-Cloud.afterError('/data', function (rejection) {
-  if (response.status === 401) {
-    // Do something fancy then try again
-    return fixAuthProblem().then(function() {
-      Cloud.request(rejection.options);
-    });
-  }
-  return $q.reject(rejection);
-});
-```
-
 ### FHHash
 Promise based interface to FeedHenry SDK hashing functions. All calls return a 
 promise. The injected variable _FHHash_ is a function with other shortcut 

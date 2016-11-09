@@ -58,6 +58,12 @@ describe('Processors', function () {
       expect(Pre.preprocessors.after['/users'].stack[0].fn).to.equal(dummyFn);
     });
 
+    it('Should add the given route and function to the afterError stack', function () {
+      Pre.use(Pre.preprocessors.afterError, '/users', dummyFn);
+      expect(Pre.preprocessors.afterError['/users'].stack).to.have.length(1);
+      expect(Pre.preprocessors.afterError['/users'].stack[0].fn).to.equal(dummyFn);
+    });
+
     it('Should add th given functions to the same before route', function () {
       Pre.use(Pre.preprocessors.before, '/users', dummyFn);
       Pre.use(Pre.preprocessors.before, '/users', dummyFn);
