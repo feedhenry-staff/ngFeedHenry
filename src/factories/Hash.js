@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function (FHUtils, $window) {
+module.exports = ['FHUtils', '$window', function (FHUtils, $window) {
   var ngHash = FHUtils.wrapApiFn($window.$fh.hash);
 
   /**
@@ -25,4 +25,4 @@ module.exports = function (FHUtils, $window) {
     });
 
   return ngHash;
-};
+}];

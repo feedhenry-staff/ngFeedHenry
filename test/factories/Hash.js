@@ -14,7 +14,7 @@ describe('FHHash', function () {
   });
 
   beforeEach(inject(function (_FHHash_, _$timeout_, _$rootScope_) {
-    $rootScope = _$rootScope_
+    $rootScope = _$rootScope_;
     $timeout = _$timeout_;
     FHHash = _FHHash_;
   }));
@@ -30,7 +30,7 @@ describe('FHHash', function () {
       FHHash.MD5('testtext')
         .catch(done)
         .then(function (result) {
-          window.dump('CALLED TEST PRIMSE')
+          window.dump('CALLED TEST PRIMSE');
           expect(result).to.be.an('object');
           expect(result.hashvalue).to.be.defined;
           expect(result.hashvalue).to.equal('fakehashvalue');

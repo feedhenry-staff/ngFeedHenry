@@ -9,7 +9,7 @@ describe('Processors', function () {
 
   beforeEach(module('ngFeedHenry'));
   beforeEach(inject(function (_Processors_, _$timeout_, _$q_) {
-    $q = _$q_
+    $q = _$q_;
     $timeout = _$timeout_;
     Pre = _Processors_;
     $fh.createApiShim('cloud');
@@ -56,12 +56,6 @@ describe('Processors', function () {
       Pre.use(Pre.preprocessors.after, '/users', dummyFn);
       expect(Pre.preprocessors.after['/users'].stack).to.have.length(1);
       expect(Pre.preprocessors.after['/users'].stack[0].fn).to.equal(dummyFn);
-    });
-
-    it('Should add the given route and function to the afterError stack', function () {
-      Pre.use(Pre.preprocessors.afterError, '/users', dummyFn);
-      expect(Pre.preprocessors.afterError['/users'].stack).to.have.length(1);
-      expect(Pre.preprocessors.afterError['/users'].stack[0].fn).to.equal(dummyFn);
     });
 
     it('Should add th given functions to the same before route', function () {
@@ -157,7 +151,7 @@ describe('Processors', function () {
     });
 
     it('Should not modify the params as routes do not match', function (done) {
-      Pre.use(after, '/api', dummyFn)
+      Pre.use(after, '/api', dummyFn);
       var promise = Pre.exec(
         Pre.getProcessorsForRoute(after, TEST_PARAMS.path),
         copy(TEST_PARAMS)
@@ -174,7 +168,7 @@ describe('Processors', function () {
     });
 
     it('Should modify the params as routes match', function (done) {
-      Pre.use(before, '/users', dummyFn)
+      Pre.use(before, '/users', dummyFn);
       var promise = Pre.exec(
         Pre.getProcessorsForRoute(before, TEST_PARAMS.path),
         copy(TEST_PARAMS)
@@ -191,8 +185,8 @@ describe('Processors', function () {
     });
 
     it('Should modify the params twice as routes match', function (done) {
-      Pre.use(after, '/users', dummyFn)
-      Pre.use(after, dummyFn2)
+      Pre.use(after, '/users', dummyFn);
+      Pre.use(after, dummyFn2);
       var promise = Pre.exec(
         Pre.getProcessorsForRoute(after, TEST_PARAMS.path),
         copy(TEST_PARAMS)

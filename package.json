@@ -1,32 +1,66 @@
 {
   "name": "ng-feedhenry",
   "version": "0.2.53",
-  "main": "./src/ngFH.js",
+  "main": "./dist/ngFH.js",
   "description": "AngularJS friendly FeedHenry SDK wrapper.",
-  "repository": "feedhenry-staff/ngFeedHenry",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/feedhenry-staff/ngFeedHenry"
+  },
   "scripts": {
-    "test": "make test"
+    "clean": "rm -r dist test/bundle.js",
+    "build": "npm run lint && mkdir dist && ./node_modules/.bin/browserify -e ./src/ngFH.js -o ./dist/ngFH.js",
+    "debugbuild": "./node_modules/.bin/browserify -e ./src/ngFH.js -o ./test/bundle.js",
+    "lint": "./node_modules/.bin/eslint .",
+    "postinstall": "npm run build",
+    "test": "npm run debugbuild && ./node_modules/karma/bin/karma start"
   },
   "authors": [
     "Evan Shortiss"
   ],
   "license": "MIT",
   "devDependencies": {
+    "angular": "^1.5.8",
+    "angular-mocks": "~1.5.8",
     "browserify": "~4.1.8",
-    "karma": "^0.12.21",
+    "eslint": "~3.9.1",
+    "fh-mocks": "0.1.1",
+    "karma": "~1.2.0",
     "karma-chai": "~0.1.0",
-    "karma-mocha": "~0.1.9",
-    "karma-chrome-launcher": "~0.1.3",
-    "linelint": "0.0.2",
-    "jshint": "^2.5.3",
-    "lintspaces-cli": "0.0.4",
-    "fh-mocks": "~0.0.5",
-    "karma-mocha-reporter": "~0.3.1"
+    "karma-chrome-launcher": "~2.0.0",
+    "karma-mocha": "~1.0.1",
+    "karma-mocha-reporter": "~2.0.4"
   },
   "dependencies": {
     "xtend": "^4.0.0",
     "fhlog": "~0.1.6",
     "route-matcher": "0.1.0",
     "brfs": "~1.2.0"
-  }
+  },
+  "gitHead": "abfc130c9968dcdd03a6d14995fa3a85bbf800a6",
+  "bugs": {
+    "url": "https://github.com/feedhenry-staff/ngFeedHenry/issues"
+  },
+  "homepage": "https://github.com/feedhenry-staff/ngFeedHenry",
+  "_id": "ng-feedhenry@0.2.53",
+  "_shasum": "53334c13a3724e5569e63e11dcc67539a937d6ee",
+  "_from": "ng-feedhenry@>=0.2.53 <0.3.0",
+  "_npmVersion": "2.7.5",
+  "_nodeVersion": "0.10.24",
+  "_npmUser": {
+    "name": "evanshortiss",
+    "email": "evanshortiss@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "evanshortiss",
+      "email": "evanshortiss@gmail.com"
+    }
+  ],
+  "dist": {
+    "shasum": "53334c13a3724e5569e63e11dcc67539a937d6ee",
+    "tarball": "https://registry.npmjs.org/ng-feedhenry/-/ng-feedhenry-0.2.53.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/ng-feedhenry/-/ng-feedhenry-0.2.53.tgz"
 }

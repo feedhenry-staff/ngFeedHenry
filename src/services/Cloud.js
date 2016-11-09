@@ -16,12 +16,11 @@ var DEFAULT_OPTS = {
  * Service to represent FH.Cloud
  * @module Cloud
  */
-module.exports = function (Processors, $q, $timeout) {
+module.exports = ['Processors', '$q', '$timeout', function (Processors, $q, $timeout) {
   var log = fhlog.getLogger('FH.Cloud');
 
   this.before = Processors.before.bind(Processors);
   this.after = Processors.after.bind(Processors);
-  this.afterError = Processors.afterError.bind(Processors);
 
   /**
    * Perform the cloud request returning a promise or null.
@@ -47,20 +46,18 @@ module.exports = function (Processors, $q, $timeout) {
           // https://github.com/feedhenry/fh-js-sdk/issues/109
           var failDefer = $q.defer();
 
-          var processFn = Processors.execAfterError(opts, failDefer);
-          var rejection = failDetails;
-          rejection.data = failureResponse;
-          rejection.options = opts;
+          var processFn = Processors.execAfter(opts, failDefer);
 
-          // If the afterError resolves successfully, this will resolve
+          // Always call the original as a failure since an HTTP error code
+          // was retuned originally.
           failDefer.promise
             .then(function (res) {
-              deferred.resolve(res);
+              deferred.reject(res || new Error('No Response'), failDetails);
             }, function (res) {
-              deferred.reject(res || new Error('No Response'));
+              deferred.reject(res || new Error('No Response'), failDetails);
             });
 
-          processFn(rejection);
+          processFn(failureResponse);
         }
       );
     }
@@ -199,4 +196,4 @@ module.exports = function (Processors, $q, $timeout) {
   this.enableLogging = function() {
     log.setSilent(false);
   };
-};
+}];

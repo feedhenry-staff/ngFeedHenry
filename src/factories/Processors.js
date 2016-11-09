@@ -2,8 +2,7 @@
 
 var routeMatcher = require('route-matcher').routeMatcher;
 
-module.exports = function Preprocessors ($q, $timeout) {
-
+module.exports = ['$q', '$timeout', function Preprocessors ($q, $timeout) {
   return {
     // Used for ordering
     count: 0,
@@ -16,12 +15,6 @@ module.exports = function Preprocessors ($q, $timeout) {
         }
       },
       after: {
-        '*': {
-          stack: [],
-          matcher: null
-        }
-      },
-      afterError: {
         '*': {
           stack: [],
           matcher: null
@@ -42,12 +35,6 @@ module.exports = function Preprocessors ($q, $timeout) {
             stack: [],
             matcher: null
           }
-        },
-        afterError: {
-          '*': {
-            stack: [],
-            matcher: null
-          }
         }
       };
     },
@@ -58,10 +45,6 @@ module.exports = function Preprocessors ($q, $timeout) {
 
     after: function (route, validators, fn) {
       this.use(this.preprocessors.after, route, validators, fn);
-    },
-
-    afterError: function (route, validators, fn) {
-      this.use(this.preprocessors.afterError, route, validators, fn);
     },
 
     use: function (processors, route, validators, fn) {
@@ -148,24 +131,13 @@ module.exports = function Preprocessors ($q, $timeout) {
       };
     },
 
-    execAfterError: function (params, deferred) {
-      var self = this;
-      var processors = this.getProcessorsForRoute(
-        this.preprocessors.afterError, params.path);
-
-      return function (res) {
-        return self.exec(processors, res)
-          .then(deferred.resolve, deferred.reject);
-      };
-    },
-
     exec: function (processors, params) {
       var deferred = $q.defer()
         , prev = null;
 
       // Processors are exectued in the order they were added
       processors.sort(function (a, b) {
-        return (a.idx < b.idx) ? -1 : 1;
+        return a.idx < b.idx ? -1 : 1;
       });
 
       // Need to wait a little to ensure promise is returned in the event
@@ -196,4 +168,4 @@ module.exports = function Preprocessors ($q, $timeout) {
       return deferred.promise;
     }
   };
-};
+}];

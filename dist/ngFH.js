@@ -1,29 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-if (typeof Object.create === 'function') {
-  // implementation from standard node.js 'util' module
-  module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    ctor.prototype = Object.create(superCtor.prototype, {
-      constructor: {
-        value: ctor,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-  };
-} else {
-  // old school shim for old browsers
-  module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    var TempCtor = function () {}
-    TempCtor.prototype = superCtor.prototype
-    ctor.prototype = new TempCtor()
-    ctor.prototype.constructor = ctor
-  }
-}
-
-},{}],2:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -251,7 +226,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require("FWaASH"))
-},{"FWaASH":3}],3:[function(require,module,exports){
+},{"FWaASH":2}],2:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -315,6 +290,31 @@ process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
+
+},{}],3:[function(require,module,exports){
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    var TempCtor = function () {}
+    TempCtor.prototype = superCtor.prototype
+    ctor.prototype = new TempCtor()
+    ctor.prototype.constructor = ctor
+  }
+}
 
 },{}],4:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
@@ -913,7 +913,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require("FWaASH"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":4,"FWaASH":3,"inherits":1}],6:[function(require,module,exports){
+},{"./support/isBuffer":4,"FWaASH":2,"inherits":3}],6:[function(require,module,exports){
 'use strict';
 
 exports.green = function (str) {
@@ -1717,7 +1717,7 @@ exports.uploadLogs = function (callback) {
   }, TASK_PRIORITY.UPLOAD, callback);
 };
 
-},{"./fileSystem":13,"async":16,"lodash":20,"path":2,"safejson":21}],13:[function(require,module,exports){
+},{"./fileSystem":13,"async":16,"lodash":20,"path":1,"safejson":21}],13:[function(require,module,exports){
 'use strict';
 
 module.exports = require('html5-fs');
@@ -2907,7 +2907,7 @@ exports.log = function (level, str) {
 }());
 
 }).call(this,require("FWaASH"))
-},{"FWaASH":3}],17:[function(require,module,exports){
+},{"FWaASH":2}],17:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils')
@@ -3103,7 +3103,7 @@ exports.init = function(bytes, callback) {
   });
 };
 
-},{"./fileSystem":18,"./utils":19,"path":2}],18:[function(require,module,exports){
+},{"./fileSystem":18,"./utils":19,"path":1}],18:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils')
@@ -3326,7 +3326,7 @@ function requestQuota(quota, callback) {
   }
 }
 
-},{"./utils":19,"path":2}],19:[function(require,module,exports){
+},{"./utils":19,"path":1}],19:[function(require,module,exports){
 'use strict';
 
 /**
@@ -10254,7 +10254,7 @@ exports.parse = function (/*json, reviver, callback*/) {
 };
 
 }).call(this,require("FWaASH"))
-},{"FWaASH":3}],22:[function(require,module,exports){
+},{"FWaASH":2}],22:[function(require,module,exports){
 /* JavaScript Route Matcher - v0.1.0 - 10/19/2011
  * http://github.com/cowboy/javascript-route-matcher
  * Copyright (c) 2011 "Cowboy" Ben Alman; Licensed MIT, GPL */
@@ -10357,6 +10357,8 @@ exports.parse = function (/*json, reviver, callback*/) {
 },{}],23:[function(require,module,exports){
 module.exports = extend
 
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
 function extend() {
     var target = {}
 
@@ -10364,7 +10366,7 @@ function extend() {
         var source = arguments[i]
 
         for (var key in source) {
-            if (source.hasOwnProperty(key)) {
+            if (hasOwnProperty.call(source, key)) {
                 target[key] = source[key]
             }
         }
@@ -10376,7 +10378,7 @@ function extend() {
 },{}],24:[function(require,module,exports){
 'use strict';
 
-module.exports = function (FHUtils, $window) {
+module.exports = ['FHUtils', '$window', function (FHUtils, $window) {
   var ngHash = FHUtils.wrapApiFn($window.$fh.hash);
 
   /**
@@ -10401,15 +10403,14 @@ module.exports = function (FHUtils, $window) {
     });
 
   return ngHash;
-};
+}];
 
 },{}],25:[function(require,module,exports){
 'use strict';
 
 var routeMatcher = require('route-matcher').routeMatcher;
 
-module.exports = function Preprocessors ($q, $timeout) {
-
+module.exports = ['$q', '$timeout', function Preprocessors ($q, $timeout) {
   return {
     // Used for ordering
     count: 0,
@@ -10422,12 +10423,6 @@ module.exports = function Preprocessors ($q, $timeout) {
         }
       },
       after: {
-        '*': {
-          stack: [],
-          matcher: null
-        }
-      },
-      afterError: {
         '*': {
           stack: [],
           matcher: null
@@ -10448,12 +10443,6 @@ module.exports = function Preprocessors ($q, $timeout) {
             stack: [],
             matcher: null
           }
-        },
-        afterError: {
-          '*': {
-            stack: [],
-            matcher: null
-          }
         }
       };
     },
@@ -10464,10 +10453,6 @@ module.exports = function Preprocessors ($q, $timeout) {
 
     after: function (route, validators, fn) {
       this.use(this.preprocessors.after, route, validators, fn);
-    },
-
-    afterError: function (route, validators, fn) {
-      this.use(this.preprocessors.afterError, route, validators, fn);
     },
 
     use: function (processors, route, validators, fn) {
@@ -10554,24 +10539,13 @@ module.exports = function Preprocessors ($q, $timeout) {
       };
     },
 
-    execAfterError: function (params, deferred) {
-      var self = this;
-      var processors = this.getProcessorsForRoute(
-        this.preprocessors.afterError, params.path);
-
-      return function (res) {
-        return self.exec(processors, res)
-          .then(deferred.resolve, deferred.reject);
-      };
-    },
-
     exec: function (processors, params) {
       var deferred = $q.defer()
         , prev = null;
 
       // Processors are exectued in the order they were added
       processors.sort(function (a, b) {
-        return (a.idx < b.idx) ? -1 : 1;
+        return a.idx < b.idx ? -1 : 1;
       });
 
       // Need to wait a little to ensure promise is returned in the event
@@ -10602,12 +10576,12 @@ module.exports = function Preprocessors ($q, $timeout) {
       return deferred.promise;
     }
   };
-};
+}];
 
 },{"route-matcher":22}],26:[function(require,module,exports){
 'use strict';
 
-module.exports = function (FHUtils, $window) {
+module.exports = ['FHUtils', '$window', function (FHUtils, $window) {
   var ngSec = FHUtils.wrapApiFn($window.$fh.sec);
 
   /**
@@ -10631,7 +10605,7 @@ module.exports = function (FHUtils, $window) {
     });
 
   return ngSec;
-};
+}];
 
 },{}],27:[function(require,module,exports){
 'use strict';
@@ -10672,12 +10646,11 @@ var DEFAULT_OPTS = {
  * Service to represent FH.Cloud
  * @module Cloud
  */
-module.exports = function (Processors, $q, $timeout) {
+module.exports = ['Processors', '$q', '$timeout', function (Processors, $q, $timeout) {
   var log = fhlog.getLogger('FH.Cloud');
 
   this.before = Processors.before.bind(Processors);
   this.after = Processors.after.bind(Processors);
-  this.afterError = Processors.afterError.bind(Processors);
 
   /**
    * Perform the cloud request returning a promise or null.
@@ -10703,20 +10676,18 @@ module.exports = function (Processors, $q, $timeout) {
           // https://github.com/feedhenry/fh-js-sdk/issues/109
           var failDefer = $q.defer();
 
-          var processFn = Processors.execAfterError(opts, failDefer);
-          var rejection = failDetails;
-          rejection.data = failureResponse;
-          rejection.options = opts;
+          var processFn = Processors.execAfter(opts, failDefer);
 
-          // If the afterError resolves successfully, this will resolve
+          // Always call the original as a failure since an HTTP error code
+          // was retuned originally.
           failDefer.promise
             .then(function (res) {
-              deferred.resolve(res);
+              deferred.reject(res || new Error('No Response'), failDetails);
             }, function (res) {
-              deferred.reject(res || new Error('No Response'));
+              deferred.reject(res || new Error('No Response'), failDetails);
             });
 
-          processFn(rejection);
+          processFn(failureResponse);
         }
       );
     }
@@ -10855,12 +10826,12 @@ module.exports = function (Processors, $q, $timeout) {
   this.enableLogging = function() {
     log.setSilent(false);
   };
-};
+}];
 
 },{"fhlog":10,"xtend":23}],30:[function(require,module,exports){
 'use strict';
 
-module.exports = function ($rootScope, $timeout, $window, $q) {
+module.exports = ['$rootScope', '$timeout', '$window', '$q', function ($rootScope, $timeout, $window, $q) {
 
   /**
    * General purpose wrapper for any API function to promise enable it.
@@ -10881,7 +10852,7 @@ module.exports = function ($rootScope, $timeout, $window, $q) {
     };
   };
 
-};
+}];
 
 },{}],31:[function(require,module,exports){
 'use strict';
