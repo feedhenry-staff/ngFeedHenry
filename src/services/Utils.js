@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function ($rootScope, $timeout, $window, $q) {
+module.exports = ['$rootScope', '$timeout', '$window', '$q', function ($rootScope, $timeout, $window, $q) {
 
   /**
    * General purpose wrapper for any API function to promise enable it.
@@ -21,4 +21,4 @@ module.exports = function ($rootScope, $timeout, $window, $q) {
     };
   };
 
-};
+}];

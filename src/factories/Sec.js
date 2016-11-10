@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function (FHUtils, $window) {
+module.exports = ['FHUtils', '$window', function (FHUtils, $window) {
   var ngSec = FHUtils.wrapApiFn($window.$fh.sec);
 
   /**
@@ -24,4 +24,4 @@ module.exports = function (FHUtils, $window) {
     });
 
   return ngSec;
-};
+}];

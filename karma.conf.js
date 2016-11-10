@@ -10,8 +10,8 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     // we need angular and it's mocks for testing/loading modules
     files: [
-      './bower_components/angular/angular.js',
-      './bower_components/angular-mocks/angular-mocks.js',
+      './node_modules/angular/angular.js',
+      './node_modules/angular-mocks/angular-mocks.js',
       './node_modules/fh-mocks/dist/fh-mocks.js',
       './test/bundle.js',
       './test/**/*.js'

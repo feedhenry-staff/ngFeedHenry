@@ -9,7 +9,7 @@ describe('Processors', function () {
 
   beforeEach(module('ngFeedHenry'));
   beforeEach(inject(function (_Processors_, _$timeout_, _$q_) {
-    $q = _$q_
+    $q = _$q_;
     $timeout = _$timeout_;
     Pre = _Processors_;
     $fh.createApiShim('cloud');
@@ -157,7 +157,7 @@ describe('Processors', function () {
     });
 
     it('Should not modify the params as routes do not match', function (done) {
-      Pre.use(after, '/api', dummyFn)
+      Pre.use(after, '/api', dummyFn);
       var promise = Pre.exec(
         Pre.getProcessorsForRoute(after, TEST_PARAMS.path),
         copy(TEST_PARAMS)
@@ -174,7 +174,7 @@ describe('Processors', function () {
     });
 
     it('Should modify the params as routes match', function (done) {
-      Pre.use(before, '/users', dummyFn)
+      Pre.use(before, '/users', dummyFn);
       var promise = Pre.exec(
         Pre.getProcessorsForRoute(before, TEST_PARAMS.path),
         copy(TEST_PARAMS)
@@ -191,8 +191,8 @@ describe('Processors', function () {
     });
 
     it('Should modify the params twice as routes match', function (done) {
-      Pre.use(after, '/users', dummyFn)
-      Pre.use(after, dummyFn2)
+      Pre.use(after, '/users', dummyFn);
+      Pre.use(after, dummyFn2);
       var promise = Pre.exec(
         Pre.getProcessorsForRoute(after, TEST_PARAMS.path),
         copy(TEST_PARAMS)

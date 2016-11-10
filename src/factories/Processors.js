@@ -2,7 +2,7 @@
 
 var routeMatcher = require('route-matcher').routeMatcher;
 
-module.exports = function Preprocessors ($q, $timeout) {
+module.exports = ['$q', '$timeout', function Preprocessors ($q, $timeout) {
 
   return {
     // Used for ordering
@@ -196,4 +196,4 @@ module.exports = function Preprocessors ($q, $timeout) {
       return deferred.promise;
     }
   };
-};
+}];
