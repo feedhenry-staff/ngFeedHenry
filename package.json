@@ -6,10 +6,10 @@
   "repository": "feedhenry-staff/ngFeedHenry",
   "scripts": {
     "clean": "rm -r dist test/bundle.js",
-    "build": "npm run lint && mkdir dist && ./node_modules/.bin/browserify -e ./src/ngFH.js -o ./dist/ngFH.js",
+    "build": "npm run lint && ./node_modules/.bin/browserify -e ./src/ngFH.js -o ./dist/ngFH.js",
     "debugbuild": "./node_modules/.bin/browserify -e ./src/ngFH.js -o ./test/bundle.js",
+    "prepublish": "npm run build",
     "lint": "./node_modules/.bin/eslint .",
-    "postinstall": "npm run build",
     "test": "npm run debugbuild && ./node_modules/karma/bin/karma start"
   },
   "authors": [

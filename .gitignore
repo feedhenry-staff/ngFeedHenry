@@ -1,5 +1,4 @@
 # build
-dist
 bundle.js
 
 fhc-debug.log
