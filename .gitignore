@@ -1,6 +1,8 @@
 # build
 bundle.js
-dist
+.DS_Store
+ngFH.js
+ngFH.min.js
 
 fhc-debug.log
 npm-debug.log
