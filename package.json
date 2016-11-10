@@ -22,19 +22,19 @@
   "devDependencies": {
     "angular": "~1.5.8",
     "angular-mocks": "~1.5.8",
+    "brfs": "~1.2.0",
     "browserify": "~4.1.8",
     "eslint": "~3.9.1",
+    "fhlog": "~0.1.6",
     "fh-mocks": "0.1.1",
     "karma": "~1.2.0",
     "karma-chai": "~0.1.0",
     "karma-chrome-launcher": "~2.0.0",
     "karma-mocha": "~1.0.1",
-    "karma-mocha-reporter": "~2.0.4"
+    "karma-mocha-reporter": "~2.0.4",
+    "route-matcher": "0.1.0",
+    "xtend": "^4.0.0"
   },
   "dependencies": {
-    "xtend": "^4.0.0",
-    "fhlog": "~0.1.6",
-    "route-matcher": "0.1.0",
-    "brfs": "~1.2.0"
   }
 }
