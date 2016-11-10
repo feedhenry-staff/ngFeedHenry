@@ -1,19 +1,22 @@
 {
   "name": "ng-feedhenry",
-  "version": "0.2.53",
+  "version": "0.3.0",
   "main": "./dist/ngFH.js",
   "description": "AngularJS friendly FeedHenry SDK wrapper.",
   "repository": "feedhenry-staff/ngFeedHenry",
   "scripts": {
     "clean": "rm -r dist test/bundle.js",
-    "build": "npm run lint && ./node_modules/.bin/browserify -e ./src/ngFH.js -o ./dist/ngFH.js",
-    "debugbuild": "./node_modules/.bin/browserify -e ./src/ngFH.js -o ./test/bundle.js",
+    "build": "npm run lint && browserify -e ./src/ngFH.js -o ./dist/ngFH.js",
+    "debugbuild": "browserify -e ./src/ngFH.js -o ./test/bundle.js",
     "prepublish": "npm run build",
-    "lint": "./node_modules/.bin/eslint .",
-    "test": "npm run debugbuild && ./node_modules/karma/bin/karma start"
+    "lint": "eslint .",
+    "test": "npm run debugbuild && karma start"
   },
   "authors": [
     "Evan Shortiss"
+  ],
+  "contributors": [
+    "Guy Bianco IV <gjbiancoiv@gmail.com> (gbianco.com)"
   ],
   "license": "MIT",
   "devDependencies": {
